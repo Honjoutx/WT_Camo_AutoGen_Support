@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "id": "mint-industrial-panel-anime-v4-multisurface",
+  "name": "薄荷工业分区二次元·全向装甲版",
+  "summary": "继承等比立绘、对称侧面与棱角文字，在车体顶盖加入纵向装甲脊线，并为车首和车尾建立方向明确、彼此不同的对称工业构图。",
+  "tags": [
+    "anime",
+    "mint-green",
+    "industrial",
+    "hard-surface",
+    "symmetric-sides",
+    "front-facing-hero",
+    "protected-hero-art",
+    "aspect-safe",
+    "angular-typography",
+    "body-roof",
+    "front-rear",
+    "multi-surface"
+  ],
+  "palette": {
+    "base": "#7FA79C",
+    "shadow": "#20353C",
+    "secondary": "#55766F",
+    "accent": "#D8B43C",
+    "highlight": "#D4D6D1"
+  },
+  "composition": {
+    "hierarchy": [
+      "paired-structural-panels",
+      "paired-speed-stripes",
+      "paired-contour-tech",
+      "body-roof-spine",
+      "front-nose-v",
+      "rear-terminal",
+      "paired-hero-art",
+      "character-name-only"
+    ],
+    "focal_rule": "两侧以相同世界纵向位置的大尺度角色近景为第一焦点；人物脸部在左右外视图中均靠车头一端，炮塔和车体的非文字图形保持成对。",
+    "density_rule": "大色块与技术细节全部留在角色立绘下方；立绘之后只允许无底板、无装饰色块的透明角色名文字；所有投射先保证素材比例，再通过裁切和安全边界控制密度。",
+    "symmetry": "车体和炮塔侧面的所有非文字层必须使用显式左右配对、X 镜像中心与相反投射方向；文字保持各侧正向可读，可以非对称排版。",
+    "panel_alignment": "成对色块在左右侧使用相同纵向和高度边界；顶盖中央脊线沿世界 Y 延伸；车首和车尾图形以世界 X 中线对称，并对齐可见装甲边界。"
+  },
+  "layer_policy": {
+    "required_design_rules": {
+      "paired_side_color_layers": true,
+      "text_may_be_asymmetric": true,
+      "hero_face_toward_vehicle_front": true,
+      "only_character_name_above_hero_art": true,
+      "hero_art_preserve_aspect": true,
+      "max_other_aspect_distortion": 0.08,
+      "record_iteration_in_skill": true,
+      "surface_direction_contract": true,
+      "front_rear_bilateral_graphics": true
+    },
+    "bottom_to_top": [
+      "paired side underlays",
+      "top underlays",
+      "body-only roof spine",
+      "front and rear underlays",
+      "left and right hero art",
+      "transparent glyph-only character names"
+    ],
+    "hero_occlusion": "角色层之后禁止色块、条纹、等高线、标识底板、箭头、圆点、污渍或带颜色的保护层。",
+    "aspect_rule": "角色立绘与角色名保持采样图像原始宽高比；其他纹理最大宽高比误差为 8%，优先扩大投射框后裁切，禁止用单轴缩放铺满装甲。",
+    "typography_rule": "角色名使用 Agency FB/Bahnschrift 类窄体棱角工业字；左右使用独立的正向字形画布，把主名分别放在各自车尾侧的可见中部，避开角色脸和炮塔实体遮挡；主名字号不得压过面部，副名保持次级。",
+    "verification_views": [
+      "left_side",
+      "right_side",
+      "left_front",
+      "right_front",
+      "top_check",
+      "front",
+      "rear"
+    ]
+  },
+  "roles": [
+    {
+      "id": "paired-structural-panels",
+      "purpose": "用薄荷绿、石墨黑和暖白的大型硬边多边形成对重组车体及炮塔侧面。",
+      "asset_guidance": "透明背景宽幅色块；左右复用同一素材并采用镜像投射参数；按原图比例扩大投射框后由高度遮罩裁切，宽高比误差不超过 8%；不含文字、角色、品牌或车辆照片。",
+      "prompt_template": "transparent-background symmetric vehicle livery structural panel mask, mint green graphite and warm off-white, large hard-edged wedges, no text, no logo, no character",
+      "opacity": 0.96,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.38, "metallic": 0.2, "coat_weight": 0.3, "coat_roughness": 0.2}
+    },
+    {
+      "id": "paired-speed-stripes",
+      "purpose": "用成对斜带连接左右对应装甲分区。",
+      "asset_guidance": "透明背景、锐角收尾；左右物理镜像，始终位于角色层下方；宽高比误差不超过 8%。",
+      "prompt_template": "transparent-background mirrored diagonal speed stripes, mint and warm white, sharp cut ends, no text, no logo",
+      "opacity": 0.9,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.3, "metallic": 0.36, "coat_weight": 0.4, "coat_roughness": 0.16}
+    },
+    {
+      "id": "paired-contour-tech",
+      "purpose": "在左右深色区成对加入低对比度等高线。",
+      "asset_guidance": "透明背景稀疏线条；不得越过角色轮廓显示在角色上方；用等比缩放与裁切适配装甲。",
+      "prompt_template": "transparent-background sparse topographic contour lines, low contrast, mirrored side layout, no labels, no text",
+      "opacity": 0.55,
+      "blend_mode": "SCREEN",
+      "surface": {"roughness": 0.24, "metallic": 0.58, "coat_weight": 0.48, "coat_roughness": 0.12}
+    },
+    {
+      "id": "body-roof-spine",
+      "purpose": "在后部车体顶盖建立沿车辆纵向延伸的中央脊线与成对装甲楔形。",
+      "asset_guidance": "透明背景、纵向窄幅、左右严格对称；仅投射到 body 顶面，保留舱盖和炮塔设备负空间；禁止文字和角色。",
+      "prompt_template": "transparent-background symmetric vehicle roof livery, longitudinal graphite spine, paired mint and warm-white chamfered armor rails, tiny amber notches, no text, no logo, no vehicle mockup",
+      "opacity": 0.92,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.3, "metallic": 0.32, "coat_weight": 0.44, "coat_roughness": 0.16}
+    },
+    {
+      "id": "front-nose-v",
+      "purpose": "以向下收束的 V 形和中央枪矛形建立明确车首方向。",
+      "asset_guidance": "透明背景、世界 X 中线对称、上宽下窄；从车首向 +Y 窄深度投射，只落在正向及斜向鼻部装甲；禁止文字和角色。",
+      "prompt_template": "transparent-background symmetric armored vehicle nose livery, forward converging V blades, graphite center spear, mint shoulders, warm-white chevrons, tiny amber notches, no text, no logo",
+      "opacity": 0.94,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.34, "metallic": 0.24, "coat_weight": 0.38, "coat_roughness": 0.18}
+    },
+    {
+      "id": "rear-terminal",
+      "purpose": "以宽横向终止板、成对角括号和反向箭形稳定车尾视觉。",
+      "asset_guidance": "透明背景、世界 X 中线对称、宽而稳定；从车尾向 -Y 窄深度投射，不复用车首枪矛轮廓；禁止文字和角色。",
+      "prompt_template": "transparent-background symmetric armored vehicle rear livery, broad graphite terminal block, paired mint corner brackets, warm-white reverse chevrons, tiny amber service notches, no text, no logo",
+      "opacity": 0.92,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.32, "metallic": 0.3, "coat_weight": 0.4, "coat_roughness": 0.17}
+    },
+    {
+      "id": "paired-hero-art",
+      "purpose": "在左右车体形成成对的大尺度角色近景，双侧脸部均朝车头。",
+      "asset_guidance": "使用用户提供或明确授权的角色素材；严格保持 `image_region` 采样后的原始宽高比，禁止单轴缩放；左右独立设置水平采样，使脸靠近各自车头端；使用裁切而非拉伸适配车体高度。",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.6, "metallic": 0.0, "coat_weight": 0.1, "coat_roughness": 0.34}
+    },
+    {
+      "id": "character-name-only",
+      "purpose": "在角色层上方保留唯一允许的叠加信息：角色名。",
+      "asset_guidance": "透明 PNG 仅含 Agency FB/Bahnschrift 风格的窄体棱角文字字形；主名大、副名小，保持文字图片比例；左右建立独立画布，将主名放在各自车尾侧的车体可见中部，避开角色脸和炮塔裙板遮挡；禁止实心或半透明底板、色条、箭头、圆点、边框和其他装饰块；两侧文字均需正向可读。",
+      "prompt_template": "transparent-background exact condensed angular industrial character-name typography only, sharp Agency FB style glyphs, primary and secondary hierarchy, no panel, no stripe, no arrow, no dots, no decorative blocks",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {"roughness": 0.46, "metallic": 0.0, "coat_weight": 0.16, "coat_roughness": 0.26}
+    }
+  ],
+  "projection": {
+    "facing_threshold_range": [0.18, 0.28],
+    "depth_rule": "左右侧使用窄深度且成对参数一致；顶盖向 -Z 投射并只针对 body，投射体最低 Z 必须低于实际甲板顶面；车首从 -Y 向 +Y、车尾从 +Y 向 -Y 投射，深度仅覆盖端部装甲。",
+    "height_rule": "角色不覆盖履带和轮胎；用等比投射框配合世界高度裁切，而非压扁角色；角色名位于车体后上方并避开脸部。",
+    "multi_view_rule": "左/右侧、左/右前、顶视、正前和正后为强制验收视图；另用左右后视检查车尾图形是否沿侧面渗漏。"
+  },
+  "avoid": [
+    "左右车体或炮塔出现不成对的非文字色块",
+    "为了铺满装甲而水平拉宽或垂直压扁角色立绘",
+    "普通图形宽高比误差超过百分之八",
+    "任一侧角色脸部朝向车尾",
+    "在角色立绘之后叠加色块、斜条、等高线、标识底板、箭头、圆点或污渍",
+    "镜像文字导致任一侧字形反向",
+    "角色名过大、压住面部或使用圆润休闲字体破坏工业感",
+    "把侧面图形直接旋转复用到顶盖、车首或车尾",
+    "顶盖图形同时覆盖炮塔或雷达设备",
+    "车首和车尾使用完全相同的箭头语言而失去方向差异",
+    "前后投射深度过大导致图形沿车体侧面渗漏",
+    "复制参考中的角色、姓名、品牌、编号、签名或完整文字组合",
+    "让高金属度覆盖角色肤色"
+  ],
+  "provenance": {
+    "kind": "user-corrected-style-reference",
+    "references": ["style1/left_side.png", "style1/top.png"],
+    "supersedes": "mint-industrial-panel-anime-v3-aspect-safe",
+    "notes": "继承 v3 的左右对称、脸朝车头、立绘保护、素材比例和棱角文字；根据用户要求新增 body 顶盖、车首和车尾的独立全向构图、投射方向合同与正交验收视图。"
+  }
+}

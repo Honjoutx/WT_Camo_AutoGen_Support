@@ -1,0 +1,410 @@
+{
+  "version": 1,
+  "id": "mint-industrial-panel-anime-v7-turret-radar",
+  "name": "薄荷工业分区二次元·炮塔雷达独立设计版",
+  "summary": "继承 V6 车体四边连续包边，将炮塔装甲裙板改为结构引导的左右对称构图，加入独立材质细节岛与朝向车头的角色立绘，并把防空雷达正面、背面和顶部拆成各自的结构稿、投影器和材质层。",
+  "tags": [
+    "anime",
+    "mint-green",
+    "industrial",
+    "hard-surface",
+    "symmetric-sides",
+    "front-facing-hero",
+    "protected-hero-art",
+    "aspect-safe",
+    "angular-typography",
+    "body-roof",
+    "front-rear",
+    "multi-surface",
+    "structure-guide",
+    "panel-fitted",
+    "roof-wrap",
+    "edge-continuity",
+    "chamfered-corners",
+    "turret-skirt",
+    "radar-isolation",
+    "radar-front",
+    "radar-service-doors",
+    "radar-ribbed-top",
+    "high-z-projectors",
+    "multi-finish-turret",
+    "coverage-budget",
+    "per-color-assets",
+    "bounded-icon-decals",
+    "depth-complete-radar-front",
+    "forward-square-radar",
+    "character-sensor-glyphs"
+  ],
+  "palette": {
+    "base": "#7FA79C",
+    "shadow": "#20353C",
+    "secondary": "#55766F",
+    "accent": "#D8B43C",
+    "highlight": "#D4D6D1"
+  },
+  "composition": {
+    "macro_geometry_rule": "For every broad flat armor plane, approve one projector-aligned multicolor geometry plan before generating production masks. Resolve shared edges, symmetry, corner returns, exclusions, and color assignment in that plan.",
+    "large_plane_coverage_rule": "Start with 62-88% planned graphic coverage. Calculate the budget against visible paintable structure-guide patches after excluding named hero, seam, hatch, vent, turret-ring, and hardware clearances; never use the full projector canvas as the denominator.",
+    "decal_rule": "Use icon decals only after the macro plan succeeds. Keep one to three angular industrial families, at most four decals per named surface and twelve enabled decal layers overall, all below hero art with recorded provenance.",
+    "radar_equipment_zone_rule": "Treat the roof antenna front, rear, ribbed top, and any lower turret-forward square radar as distinct equipment zones. A tilted main screen and lower subpanel may need one depth-complete front system, but a second physical radar always needs its own guide, plan, projector, and verification view.",
+    "radar_depth_rule": "Record a model-derived projector-local required_depth_range for stepped or tilted radar faces. Every consuming layer must use half-depth large enough to cover the full range; a visible structure-guide image alone does not prove volume intersection.",
+    "character_motif_decal_rule": "For character-related equipment marks, abstract one or two visible motifs into original deterministic no-text/no-logo sensor glyphs. Record the provided local art, research URLs, prompt/design intent, and that no online bitmap was copied.",
+    "hierarchy": [
+      "paired-structural-panels",
+      "paired-speed-stripes",
+      "paired-contour-tech",
+      "body-roof-perimeter-wrap",
+      "structure-guided-front-and-rear",
+      "paired-turret-skirt-main-and-metal-detail",
+      "isolated-roof-radar-front-rear-top-and-forward-square-radar",
+      "paired-body-and-turret-hero-art",
+      "character-name-only"
+    ],
+    "focal_rule": "两侧以相同世界纵向位置的大尺度角色近景为第一焦点；人物脸部在左右外视图中均靠车头一端，炮塔和车体的非文字图形保持成对。",
+    "density_rule": "大色块与技术细节全部留在角色立绘下方；立绘之后只允许无底板、无装饰色块的透明角色名文字；所有投射先保证素材比例，再通过裁切和安全边界控制密度。",
+    "symmetry": "车体和炮塔侧面的所有非文字层必须使用显式左右配对、X 镜像中心与相反投射方向；文字保持各侧正向可读，可以非对称排版。",
+    "panel_alignment": "成对色块在左右侧使用相同纵向和高度边界；车体顶面以世界 Y 为主流向，将后端终止带、左右纵轨和前端肩块通过倒角回折连接；车首和车尾图形以世界 X 中线保持视觉平衡，并对齐可见装甲边界。",
+    "turret_rule": "炮塔左右装甲裙板使用相同世界纵向位置、镜像 X 中心与相反投影方向；人物脸在两侧均朝世界 -Y 车头，炮塔武器、圆顶和雷达支架留空。",
+    "radar_rule": "雷达正面以探测/扫描符号形成远读焦点；背面顺着双检修门组织并让散热栅留空；顶部跟随重复加强筋建立节拍。三面禁止共用一张旋转贴图。",
+    "panel_local_hero_rule": "炮塔立绘不得复用覆盖整座炮塔的宽线稿；必须围绕真实长条裙板另建局部线稿，把脸落在可见平面内，让透明发梢和肩部由实际装甲边界自然裁切。"
+  },
+  "layer_policy": {
+    "required_design_rules": {
+      "paired_side_color_layers": true,
+      "text_may_be_asymmetric": true,
+      "hero_face_toward_vehicle_front": true,
+      "only_character_name_above_hero_art": true,
+      "hero_art_preserve_aspect": true,
+      "max_other_aspect_distortion": 0.08,
+      "record_iteration_in_skill": true,
+      "surface_direction_contract": true,
+      "front_rear_bilateral_graphics": true,
+      "structure_guide_contract": true,
+      "edge_continuity_contract": true,
+      "radar_isolation_contract": true,
+      "macro_geometry_asset_contract": true
+    },
+    "bottom_to_top": [
+      "separate single-color macro assets derived from one approved geometry plan",
+      "paired side underlays",
+      "body roof/front/rear underlays",
+      "paired turret skirt main blocks",
+      "paired turret metallic detail islands",
+      "isolated roof-radar front/rear/top and turret-forward-radar main and metallic layers",
+      "bounded functional icon decals",
+      "left and right body/turret hero art",
+      "transparent glyph-only character names"
+    ],
+    "hero_occlusion": "角色层之后禁止色块、条纹、等高线、标识底板、箭头、圆点、污渍或带颜色的保护层。",
+    "aspect_rule": "角色立绘与角色名保持采样图像原始宽高比；其他纹理最大宽高比误差为 8%，优先扩大投射框后裁切，禁止用单轴缩放铺满装甲。",
+    "typography_rule": "角色名使用 Agency FB/Bahnschrift 类窄体棱角工业字；左右使用独立的正向字形画布，把主名分别放在各自车尾侧的可见中部，避开角色脸和炮塔实体遮挡；主名字号不得压过面部，副名保持次级。",
+    "verification_views": [
+      "left_side",
+      "right_side",
+      "left_front",
+      "right_front",
+      "top_check",
+      "front",
+      "rear",
+      "radar_front_check",
+      "radar_rear_check",
+      "radar_top_check"
+    ]
+  },
+  "roles": [
+    {
+      "id": "coverage-budgeted-per-color-macro",
+      "purpose": "Reduce accidental blank regions on broad armor planes while preserving named structural and hero-art clearances; derive every production color block from one approved geometry plan.",
+      "asset_guidance": "Render the structure guide, set a 62-88% target, draw the complete multicolor polygon system, then export one transparent guide-canvas asset per color block. Keep shared edges identical and assign every block independent surface parameters.",
+      "prompt_template": "projector-aligned vehicle livery geometry plan on the supplied hard-surface guide, broad coherent angular coverage, mint graphite warm-white and sparse amber, connected shared edges, documented hero and hardware negative space, no text, no logo, no character",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.38,
+        "metallic": 0.2,
+        "coat_weight": 0.3,
+        "coat_roughness": 0.2
+      }
+    },
+    {
+      "id": "paired-structural-panels",
+      "purpose": "用薄荷绿、石墨黑和暖白的大型硬边多边形成对重组车体及炮塔侧面。",
+      "asset_guidance": "透明背景宽幅色块；左右复用同一素材并采用镜像投射参数；按原图比例扩大投射框后由高度遮罩裁切，宽高比误差不超过 8%；不含文字、角色、品牌或车辆照片。",
+      "prompt_template": "transparent-background symmetric vehicle livery structural panel mask, mint green graphite and warm off-white, large hard-edged wedges, no text, no logo, no character",
+      "opacity": 0.96,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.38,
+        "metallic": 0.2,
+        "coat_weight": 0.3,
+        "coat_roughness": 0.2
+      }
+    },
+    {
+      "id": "paired-speed-stripes",
+      "purpose": "用成对斜带连接左右对应装甲分区。",
+      "asset_guidance": "透明背景、锐角收尾；左右物理镜像，始终位于角色层下方；宽高比误差不超过 8%。",
+      "prompt_template": "transparent-background mirrored diagonal speed stripes, mint and warm white, sharp cut ends, no text, no logo",
+      "opacity": 0.9,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.3,
+        "metallic": 0.36,
+        "coat_weight": 0.4,
+        "coat_roughness": 0.16
+      }
+    },
+    {
+      "id": "paired-contour-tech",
+      "purpose": "在左右深色区成对加入低对比度等高线。",
+      "asset_guidance": "透明背景稀疏线条；不得越过角色轮廓显示在角色上方；用等比缩放与裁切适配装甲。",
+      "prompt_template": "transparent-background sparse topographic contour lines, low contrast, mirrored side layout, no labels, no text",
+      "opacity": 0.55,
+      "blend_mode": "SCREEN",
+      "surface": {
+        "roughness": 0.24,
+        "metallic": 0.58,
+        "coat_weight": 0.48,
+        "coat_roughness": 0.12
+      }
+    },
+    {
+      "id": "body-roof-perimeter-wrap",
+      "purpose": "用后端终止带、左右纵向肩轨和前端成对回折把车体顶面与四周大色块连续连接，并保留炮塔环负空间。",
+      "asset_guidance": "先生成覆盖整块 body 顶面的结构稿；深色主带从车尾边缘进入，通过 45 度倒角并入左右包边轨，再在车头拆分为成对肩块。左右边缘使用相同节奏，炮塔环与主要舱盖中心保留底色，所有转角采用重叠倒角而非直角截断。",
+      "prompt_template": "projector-aligned full body-roof perimeter wrap, graphite rear terminal band flowing through paired longitudinal shoulder rails into mirrored front returns, overlapping chamfered corners, mint secondary blocks, large clean negative space around turret ring, connect left right front and rear macro colors, no text, no logo, no character",
+      "opacity": 0.92,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.36,
+        "metallic": 0.22,
+        "coat_weight": 0.36,
+        "coat_roughness": 0.18
+      }
+    },
+    {
+      "id": "body-roof-transition-highlights",
+      "purpose": "用暖白倒角细边和少量琥珀检修标记强调四向色块的转折方向，并提供独立金属与清漆响应。",
+      "asset_guidance": "与主包边层使用同一结构稿和投射框；高光只沿内侧折线与前后回折放置，不形成新的大色块，不穿过炮塔环，并保持左右对应。",
+      "prompt_template": "projector-aligned transparent roof transition highlights, thin warm-white chamfer-following seams and sparse amber service notches over a four-edge perimeter wrap, mirrored left-right, clear turret-ring negative space, no text, no logo, no character",
+      "opacity": 0.9,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.24,
+        "metallic": 0.46,
+        "coat_weight": 0.52,
+        "coat_roughness": 0.12
+      }
+    },
+    {
+      "id": "structure-guided-front-panels",
+      "purpose": "以真实车头舱盖边界为构图单位，在成对装甲面内建立左右呼应的内收工业图形。",
+      "asset_guidance": "设计前先生成与投射框一致的结构线稿并分割硬边表面块；将透明图形分别限制在成对舱盖内部，中央接缝、灯组、缆线、铰链、锁扣和突出附件全部留空；保持世界 X 方向视觉平衡，禁止文字和角色。",
+      "prompt_template": "projector-aligned transparent front livery based on the rendered hard-surface guide, two mirrored angular modules contained inside the selected central access-panel patches, central seam and all lamps cables hinges latches and protruding hardware clear, graphite mint warm-white and tiny amber details, no text, no logo, no vehicle mockup",
+      "opacity": 0.94,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.34,
+        "metallic": 0.24,
+        "coat_weight": 0.38,
+        "coat_roughness": 0.18
+      }
+    },
+    {
+      "id": "rear-terminal",
+      "purpose": "以宽横向终止板、成对角括号和反向箭形稳定车尾视觉。",
+      "asset_guidance": "透明背景、世界 X 中线对称、宽而稳定；从车尾向 -Y 窄深度投射，不复用车首枪矛轮廓；禁止文字和角色。",
+      "prompt_template": "transparent-background symmetric armored vehicle rear livery, broad graphite terminal block, paired mint corner brackets, warm-white reverse chevrons, tiny amber service notches, no text, no logo",
+      "opacity": 0.92,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.32,
+        "metallic": 0.3,
+        "coat_weight": 0.4,
+        "coat_roughness": 0.17
+      }
+    },
+    {
+      "id": "paired-turret-skirt",
+      "purpose": "在真实炮塔裙板平面内建立左右镜像的石墨/薄荷主色块和独立金属细节岛。",
+      "asset_guidance": "使用炮塔左右侧各自的结构稿；色块限制在长条裙板，避开武器机构、圆顶、支架和雷达；主层与高金属细节层分离。",
+      "prompt_template": "projector-aligned paired turret skirt livery, hard-edged graphite mint and warm-white blocks with sparse amber metallic service islands, no text, no logo, no character",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.36,
+        "metallic": 0.22,
+        "coat_weight": 0.34,
+        "coat_roughness": 0.18
+      }
+    },
+    {
+      "id": "isolated-radar-surfaces",
+      "purpose": "把防空雷达正面天线、背面检修门和顶部加强筋作为三个独立设备表面设计。",
+      "asset_guidance": "每面使用独立结构稿与窄深度高 Z 投影；正面突出扫描焦点，背面避开散热栅和中缝，顶部沿加强筋建立节拍；主色和高金属细节分层。",
+      "prompt_template": "projector-aligned air-defense radar livery system, depth-complete tilted roof-antenna front with lower subpanel, separate rear service-door geometry, ribbed top rhythm, and an independently guided turret-forward square radar, graphite mint warm-white and sparse amber, no text, no logo, no character",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.3,
+        "metallic": 0.36,
+        "coat_weight": 0.42,
+        "coat_roughness": 0.15
+      }
+    },
+    {
+      "id": "bounded-icon-decals",
+      "purpose": "Add a small, ordered tertiary layer of functional industrial icons without competing with macro geometry or character art.",
+      "asset_guidance": "Normalize one to three related icon families to the same stroke, corner, palette, and orientation language. Use no more than four decals per named surface and twelve layers overall; keep them below hero art and record source/license provenance.",
+      "prompt_template": "transparent-background angular industrial functional icon decal, consistent outline weight and chamfered corners, mint graphite warm-white palette with sparse amber, isolated symbol, no brand, no military insignia, no text block",
+      "opacity": 0.86,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.34,
+        "metallic": 0.18,
+        "coat_weight": 0.3,
+        "coat_roughness": 0.18
+      }
+    },
+    {
+      "id": "paired-hero-art",
+      "purpose": "在左右车体形成成对的大尺度角色近景，双侧脸部均朝车头。",
+      "asset_guidance": "使用用户提供或明确授权的角色素材；严格保持 `image_region` 采样后的原始宽高比，禁止单轴缩放；左右独立设置水平采样，使脸靠近各自车头端；使用裁切而非拉伸适配车体高度。",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.6,
+        "metallic": 0.0,
+        "coat_weight": 0.1,
+        "coat_roughness": 0.34
+      }
+    },
+    {
+      "id": "character-name-only",
+      "purpose": "在角色层上方保留唯一允许的叠加信息：角色名。",
+      "asset_guidance": "透明 PNG 仅含 Agency FB/Bahnschrift 风格的窄体棱角文字字形；主名大、副名小，保持文字图片比例；左右建立独立画布，将主名放在各自车尾侧的车体可见中部，避开角色脸和炮塔裙板遮挡；禁止实心或半透明底板、色条、箭头、圆点、边框和其他装饰块；两侧文字均需正向可读。",
+      "prompt_template": "transparent-background exact condensed angular industrial character-name typography only, sharp Agency FB style glyphs, primary and secondary hierarchy, no panel, no stripe, no arrow, no dots, no decorative blocks",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.46,
+        "metallic": 0.0,
+        "coat_weight": 0.16,
+        "coat_roughness": 0.26
+      }
+    }
+  ],
+  "macro_composition_defaults": {
+    "target_coverage_min": 0.62,
+    "target_coverage_max": 0.88,
+    "coverage_basis": "visible paintable structure-guide patches excluding documented negative space",
+    "single_color_asset_required": true,
+    "max_total_decals": 12,
+    "max_decals_per_surface": 4,
+    "max_decal_style_families": 3,
+    "decal_provenance_required": true,
+    "visual_verification": "Use one direct surface view plus at least one three-quarter view; declared coverage is a budget, not an automatic pixel measurement."
+  },
+  "edge_continuity": {
+    "required_edges": [
+      "left",
+      "right",
+      "front",
+      "rear"
+    ],
+    "macro_flow": "rear terminal band -> chamfered rear corner returns -> paired longitudinal side rails -> chamfered front shoulders -> paired front modules",
+    "corner_rule": "Every perimeter turn must overlap two compatible color blocks through an oblique or chamfered return. Do not terminate both blocks on the same straight cross-edge.",
+    "negative_space": "Keep the turret ring and the middle of major service hatches mostly in base mint so the perimeter wrap remains readable.",
+    "verification_views": [
+      "top_check",
+      "left_front_top",
+      "right_front_top",
+      "left_rear_top",
+      "right_rear_top"
+    ]
+  },
+  "structure_guide": {
+    "required_before_surface_design": true,
+    "generator": "scripts/render_surface_structure_guide.py",
+    "composer": "scripts/compose_guided_livery_asset.py",
+    "alignment_rule": "Render the guide with the exact target projector center, direction, up, size, depth, facing threshold, and world-height clip. Compose the final alpha asset on the guide canvas without one-axis stretching and keep the consuming layer on the same projector frame.",
+    "surface_patch_rule": "Split visible geometry at hard edges; select intentional paired armor patches and keep seams, hinges, lamps, cables, vents, latches, and protrusions transparent.",
+    "required_records": [
+      "guide PNG",
+      "guide metadata JSON",
+      "composed asset metadata JSON"
+    ]
+  },
+  "projection": {
+    "facing_threshold_range": [
+      0.18,
+      0.28
+    ],
+    "depth_rule": "左右侧使用窄深度且成对参数一致；顶盖向 -Z 投射并只针对 body，投射体最低 Z 必须低于实际甲板顶面；车首从 -Y 向 +Y、车尾从 +Y 向 -Y 投射，深度仅覆盖端部装甲。",
+    "height_rule": "角色不覆盖履带和轮胎；用等比投射框配合世界高度裁切，而非压扁角色；角色名位于车体后上方并避开脸部。",
+    "multi_view_rule": "左/右侧、左/右前、顶视、正前和正后为强制验收视图；另用左右后视检查车尾图形是否沿侧面渗漏。"
+  },
+  "avoid": [
+    "using a projector whose half-depth is smaller than the model-derived radar surface depth range, which clips a tilted screen or lower subpanel",
+    "treating the roof antenna front and a separate turret-forward square radar as one generic front equipment zone",
+    "copying an online character logo or icon bitmap when a small original motif-derived functional glyph is sufficient",
+    "unexplained blank corners or large empty armor regions outside documented hero, hardware, seam, hatch, vent, or turret-ring clearances",
+    "using one finished multicolor background bitmap when separate per-color assets are required for independent material response",
+    "adding icon decals before the macro geometry is approved, mixing more than three icon families, or scattering unrelated icons without named functional zones",
+    "using online icon assets without a current source URL, verified license, and retrieval date",
+    "顶面色块与侧面、车头或车尾色块在同一转角处同时直线截断",
+    "用一条孤立的中央脊线代替四周色块的连续转折关系",
+    "在未生成对应方向结构线框稿之前直接开始画贴图",
+    "让车头大图形跨过中央接缝、灯组、缆线、铰链或突出附件",
+    "左右车体或炮塔出现不成对的非文字色块",
+    "为了铺满装甲而水平拉宽或垂直压扁角色立绘",
+    "普通图形宽高比误差超过百分之八",
+    "任一侧角色脸部朝向车尾",
+    "在角色立绘之后叠加色块、斜条、等高线、标识底板、箭头、圆点或污渍",
+    "镜像文字导致任一侧字形反向",
+    "角色名过大、压住面部或使用圆润休闲字体破坏工业感",
+    "把侧面图形直接旋转复用到顶盖、车首或车尾",
+    "顶盖图形同时覆盖炮塔或雷达设备",
+    "车首和车尾使用完全相同的箭头语言而失去方向差异",
+    "前后投射深度过大导致图形沿车体侧面渗漏",
+    "复制参考中的角色、姓名、品牌、编号、签名或完整文字组合",
+    "让高金属度覆盖角色肤色",
+    "用一个通用 top 投影同时涂炮塔顶面和雷达设备",
+    "把炮塔侧面立绘投到雷达、武器机构、圆顶或支架上",
+    "让雷达背面色块盖住散热栅、中缝、铰链或检修门五金",
+    "把雷达正面图形旋转复制到背面或顶部",
+    "用整座炮塔宽线稿直接放置裙板焦点，导致脸落在空区或非朝向表面"
+  ],
+  "provenance": {
+    "kind": "user-directed-turret-and-radar-extension",
+    "references": [
+      "SMSV/turrent_image/宮瀬まひろ 2026-03-31 11-53 0.jpeg",
+      "assets/anime-liveries/pantsyr-mint-industrial-panel-v7-turret-radar/*-guide.png"
+    ],
+    "supersedes": "mint-industrial-panel-anime-v6-roof-wrap",
+    "notes": "Extends the approved V6 body treatment with structure-guided paired turret skirt graphics, aspect-preserved provided character art, independently isolated radar front/rear/top surfaces, depth-complete roof-antenna coverage, a separate turret-forward square-radar zone, and original motif-derived functional glyphs."
+  },
+  "radar_isolation": {
+    "required_sides": [
+      "front",
+      "rear",
+      "top"
+    ],
+    "target_group": "turret",
+    "required_equipment_zones": [
+      "roof_antenna_front",
+      "roof_antenna_rear",
+      "roof_antenna_top",
+      "turret_forward_radar"
+    ],
+    "minimum_world_z_rule": "Set from the rendered guide and high enough to exclude the turret skirt and body.",
+    "depth_rule": "Use the narrowest volume that covers the full model-derived required_depth_range of the intended zone. The tilted roof screen and its lower subpanel must not be clipped, while the forward square radar stays in a separate tight volume.",
+    "hardware_rule": "Keep side pods, hinges, central rear seam, vents and radar support hardware transparent unless separately masked.",
+    "verification_views": [
+      "radar_front_check",
+      "radar_rear_check",
+      "radar_top_check",
+      "turret_forward_radar_check"
+    ]
+  }
+}

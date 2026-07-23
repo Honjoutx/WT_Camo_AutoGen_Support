@@ -1,0 +1,11 @@
+interface:
+  display_name: "Blender Vehicle Livery"
+  short_description: "Material-rich anime vehicle livery styles"
+  default_prompt: "Use $blender-vehicle-livery to turn reference artwork into a material-rich layered vehicle livery with reusable style cards and Blender previews."
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "blender"
+      description: "Project-local Blender MCP server for live scene inspection and livery edits"
+      transport: "stdio"

@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "id": "sage-ribbon-anime-v1",
+  "name": "鼠尾草流线二次元",
+  "summary": "低饱和鼠尾草底色、深蓝流线、珊瑚红微型强调与单侧角色焦点组成的清爽机能风。",
+  "tags": [
+    "anime",
+    "sage-green",
+    "asymmetric",
+    "ribbon-flow",
+    "metal-accent"
+  ],
+  "palette": {
+    "base": "#7A927C",
+    "shadow": "#17344C",
+    "secondary": "#345F68",
+    "accent": "#E65E72",
+    "highlight": "#DDE6D7"
+  },
+  "composition": {
+    "hierarchy": [
+      "base",
+      "macro-flow",
+      "micro-accents",
+      "hero-art"
+    ],
+    "focal_rule": "角色位于侧面前中段，宏观流线从角色后方延伸，保留车首与轮组的负空间。",
+    "density_rule": "大纹理覆盖约三分之一侧面；小块纹理形成疏密节奏，不均匀铺满。",
+    "symmetry": "左右侧分别构图；文字、角色与方向性纹理不得直接镜像。"
+  },
+  "base": {
+    "color": "#7A927C",
+    "roughness": 0.62,
+    "metallic": 0.04,
+    "coat_weight": 0.12,
+    "coat_roughness": 0.38,
+    "micro_bump_strength": 0.02,
+    "micro_bump_scale": 38.0
+  },
+  "roles": [
+    {
+      "id": "macro-flow",
+      "purpose": "建立远距离可读的速度方向与大色块轮廓。",
+      "asset_guidance": "透明背景、宽幅深蓝与鼠尾草流线，局部珊瑚红，不含文字与角色。",
+      "prompt_template": "transparent-background wide vehicle livery ribbon flow, navy and sage leaf geometry, restrained coral accents, clean vector-like edges, no text, no logo, no vehicle mockup",
+      "opacity": 0.82,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.34,
+        "metallic": 0.28,
+        "coat_weight": 0.28,
+        "coat_roughness": 0.2
+      }
+    },
+    {
+      "id": "micro-accents",
+      "purpose": "用多个小块制造材质闪点和近距离细节。",
+      "asset_guidance": "将叶片、短线、圆点和碎片拆成多个透明小岛；需要更丰富效果时按区域拆成多个投射层。",
+      "prompt_template": "transparent-background sparse micro livery accents, small navy shards, coral filaments, sage dots and short technical lines, separated islands, no text, no logo",
+      "opacity": 0.7,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.2,
+        "metallic": 0.68,
+        "coat_weight": 0.5,
+        "coat_roughness": 0.14
+      }
+    },
+    {
+      "id": "hero-art",
+      "purpose": "形成叙事焦点，并与背景流线建立前后层级。",
+      "asset_guidance": "优先透明 PNG；白底图使用 WHITE_KEY 与 image_region 裁切，保持肤色和浅色服装可读。",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.48,
+        "metallic": 0.0,
+        "coat_weight": 0.38,
+        "coat_roughness": 0.2
+      }
+    }
+  ],
+  "projection": {
+    "facing_threshold_range": [
+      0.12,
+      0.22
+    ],
+    "depth_rule": "只覆盖目标侧板并避免穿透到另一侧。",
+    "height_rule": "侧板纹理在轮组上沿以上开始，角色不落到轮胎。"
+  },
+  "avoid": [
+    "整车均匀铺满微型纹理",
+    "高金属度直接用于角色肤色",
+    "左右侧直接镜像含文字或人物的图层",
+    "复制参考作品中的品牌标识、签名或受保护文字"
+  ],
+  "provenance": {
+    "kind": "project-derived",
+    "references": [
+      "config/anime-liveries/pantsyr-body-sage-v1.json",
+      "SMSV/body_image/62_74_75.jpg"
+    ],
+    "notes": "首个种子风格来自本项目已验证的车体侧面方案；不是对外部作品的复刻。"
+  }
+}

@@ -1,0 +1,45 @@
+# Project-local tools and Blender state
+/.blender/
+/.codex/
+/.tools/
+/.venv/
+/venv/
+
+# User-owned source models, artwork, and style references
+/SMSV/
+/style1/
+/assets/
+
+# Generated Blender masters, exports, previews, and reports
+/outputs/
+*.blend
+*.blend1
+*.blend2
+*.obj
+*.fbx
+*.gltf
+*.glb
+*.mtl
+
+# Project-specific generated configurations; keep reusable templates
+/config/anime-liveries/*.json
+!/config/anime-liveries/pantsyr-anime-template.json
+!/config/anime-liveries/pantsyr-mint-industrial-panel-template.json
+
+# Python and editor noise
+**/__pycache__/
+*.py[cod]
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Environment and credential files
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12

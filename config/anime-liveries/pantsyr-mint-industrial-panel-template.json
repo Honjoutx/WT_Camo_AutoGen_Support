@@ -1,0 +1,493 @@
+{
+  "version": 1,
+  "name": "pantsyr-mint-industrial-panel-template",
+  "style_id": "mint-industrial-panel-anime-v1",
+  "base": {
+    "color": "#7FA79C",
+    "roughness": 0.42,
+    "metallic": 0.12,
+    "coat_weight": 0.26,
+    "coat_roughness": 0.24,
+    "micro_bump_strength": 0.018,
+    "micro_bump_scale": 42.0
+  },
+  "target_groups": {
+    "body": [
+      "pantsyr_sm_sv_body_c"
+    ],
+    "turret": [
+      "pantsyr_sm_sv_turret_c"
+    ]
+  },
+  "layers": [
+    {
+      "id": "left-structural-panels",
+      "name": "01 左侧硬边装甲分区",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body",
+        "turret"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/left-structural-panels.png",
+      "source": {
+        "kind": "style-role-placeholder",
+        "style_role": "structural-panels"
+      },
+      "opacity": 0.96,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.38,
+        "metallic": 0.2,
+        "coat_weight": 0.3,
+        "coat_roughness": 0.2
+      },
+      "projection": {
+        "center": [
+          -1.62,
+          0.15,
+          2.25
+        ],
+        "direction": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "size": [
+          8.0,
+          4.35
+        ],
+        "depth": 0.72,
+        "facing_threshold": 0.18,
+        "world_z_min": 1.02,
+        "world_z_max": 4.55,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "left-speed-stripes",
+      "name": "02 左侧斜向速度条带",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/left-speed-stripes.png",
+      "source": {
+        "kind": "style-role-placeholder",
+        "style_role": "speed-stripes"
+      },
+      "opacity": 0.9,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.3,
+        "metallic": 0.36,
+        "coat_weight": 0.4,
+        "coat_roughness": 0.16
+      },
+      "projection": {
+        "center": [
+          -1.63,
+          1.55,
+          1.58
+        ],
+        "direction": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "size": [
+          3.7,
+          1.55
+        ],
+        "depth": 0.66,
+        "facing_threshold": 0.2,
+        "world_z_min": 1.05,
+        "world_z_max": 2.28,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "left-contour-tech",
+      "name": "03 左侧等高线技术纹理",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/left-contour-tech.png",
+      "source": {
+        "kind": "style-role-placeholder",
+        "style_role": "contour-tech"
+      },
+      "opacity": 0.55,
+      "blend_mode": "SCREEN",
+      "surface": {
+        "roughness": 0.24,
+        "metallic": 0.58,
+        "coat_weight": 0.48,
+        "coat_roughness": 0.12
+      },
+      "projection": {
+        "center": [
+          -1.63,
+          2.5,
+          1.63
+        ],
+        "direction": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "size": [
+          2.9,
+          1.48
+        ],
+        "depth": 0.64,
+        "facing_threshold": 0.22,
+        "world_z_min": 1.08,
+        "world_z_max": 2.24,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "left-hero-art",
+      "name": "04 左侧角色近景",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/left-hero-art.png",
+      "source": {
+        "kind": "provided-or-generated",
+        "style_role": "hero-art-side"
+      },
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.6,
+        "metallic": 0.0,
+        "coat_weight": 0.1,
+        "coat_roughness": 0.34
+      },
+      "projection": {
+        "center": [
+          -1.64,
+          -1.75,
+          1.6
+        ],
+        "direction": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "size": [
+          3.85,
+          1.72
+        ],
+        "depth": 0.64,
+        "facing_threshold": 0.22,
+        "world_z_min": 1.02,
+        "world_z_max": 2.32,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "left-display-typography",
+      "name": "05 左侧原创展示字",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/left-display-typography.png",
+      "source": {
+        "kind": "generated-original-text",
+        "style_role": "display-typography"
+      },
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.46,
+        "metallic": 0.0,
+        "coat_weight": 0.16,
+        "coat_roughness": 0.26
+      },
+      "projection": {
+        "center": [
+          -1.64,
+          -0.05,
+          1.63
+        ],
+        "direction": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "size": [
+          3.25,
+          1.34
+        ],
+        "depth": 0.62,
+        "facing_threshold": 0.23,
+        "world_z_min": 1.12,
+        "world_z_max": 2.2,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "left-industrial-signage",
+      "name": "06 左侧工程标识",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body",
+        "turret"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/left-industrial-signage.png",
+      "source": {
+        "kind": "generated-original-text",
+        "style_role": "industrial-signage"
+      },
+      "opacity": 0.88,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.28,
+        "metallic": 0.18,
+        "coat_weight": 0.5,
+        "coat_roughness": 0.14
+      },
+      "projection": {
+        "center": [
+          -1.65,
+          0.25,
+          2.45
+        ],
+        "direction": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "up": [
+          0.0,
+          0.0,
+          1.0
+        ],
+        "size": [
+          7.4,
+          3.95
+        ],
+        "depth": 0.7,
+        "facing_threshold": 0.24,
+        "world_z_min": 1.1,
+        "world_z_max": 4.45,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "top-structural-panels",
+      "name": "07 顶部硬边装甲分区",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body",
+        "turret"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/top-structural-panels.png",
+      "source": {
+        "kind": "style-role-placeholder",
+        "style_role": "structural-panels"
+      },
+      "opacity": 0.96,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.38,
+        "metallic": 0.2,
+        "coat_weight": 0.3,
+        "coat_roughness": 0.2
+      },
+      "projection": {
+        "center": [
+          0.0,
+          0.3,
+          5.35
+        ],
+        "direction": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "up": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "size": [
+          3.35,
+          8.4
+        ],
+        "depth": 6.5,
+        "facing_threshold": 0.2,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "top-hero-art",
+      "name": "08 顶部独立角色构图",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/top-hero-art.png",
+      "source": {
+        "kind": "provided-or-generated",
+        "style_role": "hero-art-top"
+      },
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.6,
+        "metallic": 0.0,
+        "coat_weight": 0.1,
+        "coat_roughness": 0.34
+      },
+      "projection": {
+        "center": [
+          0.0,
+          -2.4,
+          2.55
+        ],
+        "direction": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "up": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "size": [
+          3.0,
+          3.2
+        ],
+        "depth": 1.0,
+        "facing_threshold": 0.24,
+        "flip_x": false,
+        "flip_y": false
+      }
+    },
+    {
+      "id": "top-industrial-signage",
+      "name": "09 顶部工程标识",
+      "type": "image_projection",
+      "enabled": false,
+      "targets": [
+        "body",
+        "turret"
+      ],
+      "image": "../../assets/anime-liveries/pantsyr-mint-industrial-panel-v1/top-industrial-signage.png",
+      "source": {
+        "kind": "generated-original-text",
+        "style_role": "industrial-signage"
+      },
+      "opacity": 0.88,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.28,
+        "metallic": 0.18,
+        "coat_weight": 0.5,
+        "coat_roughness": 0.14
+      },
+      "projection": {
+        "center": [
+          0.0,
+          0.2,
+          5.4
+        ],
+        "direction": [
+          0.0,
+          0.0,
+          -1.0
+        ],
+        "up": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "size": [
+          3.1,
+          7.8
+        ],
+        "depth": 6.4,
+        "facing_threshold": 0.26,
+        "flip_x": false,
+        "flip_y": false
+      }
+    }
+  ],
+  "render": {
+    "resolution": 768,
+    "views": [
+      {
+        "name": "left_side",
+        "azimuth": 180.0,
+        "elevation": 10.0
+      },
+      {
+        "name": "left_front",
+        "azimuth": 208.0,
+        "elevation": 16.0
+      },
+      {
+        "name": "left_rear",
+        "azimuth": 152.0,
+        "elevation": 16.0
+      },
+      {
+        "name": "top_check",
+        "azimuth": 180.0,
+        "elevation": 82.0
+      },
+      {
+        "name": "right_bleed_check",
+        "azimuth": 0.0,
+        "elevation": 10.0
+      }
+    ]
+  }
+}

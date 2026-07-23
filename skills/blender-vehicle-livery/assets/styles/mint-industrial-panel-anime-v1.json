@@ -1,0 +1,159 @@
+{
+  "version": 1,
+  "id": "mint-industrial-panel-anime-v1",
+  "name": "薄荷工业分区二次元",
+  "summary": "薄荷绿、石墨黑和暖白构成硬边装甲分区，以斜向条带、等高线、工程标识和超大窄体字组织多视角角色涂装。",
+  "tags": [
+    "anime",
+    "mint-green",
+    "industrial",
+    "hard-surface",
+    "typography",
+    "multi-view",
+    "topographic-lines"
+  ],
+  "palette": {
+    "base": "#7FA79C",
+    "shadow": "#20353C",
+    "secondary": "#55766F",
+    "accent": "#D8B43C",
+    "highlight": "#D4D6D1"
+  },
+  "composition": {
+    "hierarchy": [
+      "structural-panels",
+      "hero-art",
+      "display-typography",
+      "speed-stripes",
+      "contour-tech",
+      "industrial-signage"
+    ],
+    "focal_rule": "侧面以跨越多块装甲板的超大角色近景为第一焦点，以相邻的大号窄体字为第二焦点；车首保留深色技术纹理区。顶部使用独立的全身或半身构图，并围绕舱盖和设备留出负空间。",
+    "density_rule": "约六成面积由三色硬边分区建立秩序；高密度文字和技术细节只集中在少数信息带，其余区域保持大块纯色。",
+    "symmetry": "侧面与顶部必须分别设计；左右侧的角色、文字和速度方向不得直接镜像。",
+    "panel_alignment": "让主要分色边缘、字框和角色裁切主动对齐装甲接缝、舱盖或设备边界。"
+  },
+  "roles": [
+    {
+      "id": "structural-panels",
+      "purpose": "用薄荷绿、石墨黑和暖白的大型硬边多边形重新组织整车结构。",
+      "asset_guidance": "透明背景宽幅色块，使用楔形、长梯形和切角矩形；不包含角色、品牌、专名或车辆照片。",
+      "prompt_template": "transparent-background vehicle livery structural panel mask, mint green graphite charcoal and warm off-white, large hard-edged wedges and chamfered rectangles, clean motorsport industrial layout, no text, no logo, no vehicle mockup",
+      "opacity": 0.96,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.38,
+        "metallic": 0.2,
+        "coat_weight": 0.3,
+        "coat_roughness": 0.2
+      }
+    },
+    {
+      "id": "speed-stripes",
+      "purpose": "用三至六条平行斜带连接分区并产生前进方向。",
+      "asset_guidance": "透明背景、等距或渐变宽度的斜向薄荷/暖白条带，末端采用锐角切断。",
+      "prompt_template": "transparent-background parallel diagonal speed stripes, mint green and warm white, sharp cut ends, technical armored vehicle graphic, sparse composition, no text, no logo",
+      "opacity": 0.9,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.3,
+        "metallic": 0.36,
+        "coat_weight": 0.4,
+        "coat_roughness": 0.16
+      }
+    },
+    {
+      "id": "contour-tech",
+      "purpose": "在深色区域加入近距离可读的等高线和技术曲线，不与主视觉争夺注意力。",
+      "asset_guidance": "透明背景、低对比度细线、稀疏地形等高线或流体曲线，只占深色面板的一部分。",
+      "prompt_template": "transparent-background sparse thin topographic contour lines, low contrast warm gray, technical map pattern, isolated linework, no labels, no text, no logo",
+      "opacity": 0.55,
+      "blend_mode": "SCREEN",
+      "surface": {
+        "roughness": 0.24,
+        "metallic": 0.58,
+        "coat_weight": 0.48,
+        "coat_roughness": 0.12
+      }
+    },
+    {
+      "id": "display-typography",
+      "purpose": "以大号窄体无衬线文字、编号和双层色块构成第二视觉焦点。",
+      "asset_guidance": "使用用户提供或新创的通用代号、短词和编号；一级文字暖白，二级文字薄荷绿，允许轮廓字和实心字并置。严禁复用参考中的人物姓名、车型名、编号或签名字样。",
+      "prompt_template": "transparent-background fictional condensed uppercase callsign typography, warm white primary word and mint secondary word, bold motorsport layout, generic serial blocks, no brand, no real name, no copied phrase",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.46,
+        "metallic": 0.0,
+        "coat_weight": 0.16,
+        "coat_roughness": 0.26
+      }
+    },
+    {
+      "id": "industrial-signage",
+      "purpose": "用箭头、出口框、通用警示条、点阵和微型序列号提升工程可信度。",
+      "asset_guidance": "仅使用通用、原创、可读性次要的警示语言；黄色只作为不足百分之五面积的功能强调。",
+      "prompt_template": "transparent-background generic industrial vehicle signage kit, small caution bars, arrows, exit frame, dots, fictional serial marks, graphite white and restrained hazard yellow, no brand, no copied wording",
+      "opacity": 0.88,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.28,
+        "metallic": 0.18,
+        "coat_weight": 0.5,
+        "coat_roughness": 0.14
+      }
+    },
+    {
+      "id": "hero-art-side",
+      "purpose": "在侧面形成跨装甲板的大尺度角色近景。",
+      "asset_guidance": "使用独立授权或用户提供的角色素材；裁切到头肩或半身，视线朝向车身内部，色彩向薄荷绿、青蓝和暖白收敛。",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.6,
+        "metallic": 0.0,
+        "coat_weight": 0.1,
+        "coat_roughness": 0.34
+      }
+    },
+    {
+      "id": "hero-art-top",
+      "purpose": "为顶部建立独立于侧面的角色构图，在俯视角保持可读性。",
+      "asset_guidance": "优先全身、坐姿或横卧构图；避开舱盖、炮塔座和主要设备，禁止把侧面近景直接旋转或镜像到顶部。",
+      "opacity": 1.0,
+      "blend_mode": "MIX",
+      "surface": {
+        "roughness": 0.6,
+        "metallic": 0.0,
+        "coat_weight": 0.1,
+        "coat_roughness": 0.34
+      }
+    }
+  ],
+  "projection": {
+    "facing_threshold_range": [
+      0.14,
+      0.28
+    ],
+    "depth_rule": "侧面投射保持窄深度；顶部角色和文字使用独立向下投射器，并分别避开炮塔与车体重叠区域。",
+    "height_rule": "侧面角色可接近轮组上沿但不覆盖履带与轮胎；工程标识优先落在平整装甲板上。",
+    "multi_view_rule": "侧面近景、顶部全身图和炮塔标识分别使用独立素材与投射器。"
+  },
+  "avoid": [
+    "复制参考中的人物姓名、车型名、编号、签名、品牌标识或完整文字组合",
+    "直接截取参考图中的角色或贴图作为生产素材",
+    "把侧面角色构图旋转后复用到顶部",
+    "让等高线和微型标识均匀覆盖整车",
+    "黄色警示色超过总可见面积的百分之五",
+    "让高金属度覆盖角色肤色和大面积暖白印刷"
+  ],
+  "provenance": {
+    "kind": "user-provided-style-reference",
+    "references": [
+      "style1/left_side.png",
+      "style1/top.png"
+    ],
+    "notes": "仅抽象配色关系、硬边分区、多视角角色布局、技术纹理和工业排版语法；参考中的角色、专名、标识、编号和签名不进入可复用资产。"
+  }
+}

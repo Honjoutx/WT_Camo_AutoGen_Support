@@ -1,0 +1,31 @@
+{
+  "name": "pantsyr-woodland-v1",
+  "material_name": "CAMO_Pantsyr_Woodland_V1",
+  "target_objects": [
+    "pantsyr_sm_sv_body_c",
+    "pantsyr_sm_sv_turret_c"
+  ],
+  "colors": [
+    "#8E825A",
+    "#596442",
+    "#252D24"
+  ],
+  "thresholds": [0.0, 0.38, 0.62],
+  "pattern_scale": 1.45,
+  "noise_detail": 3.0,
+  "noise_roughness": 0.68,
+  "noise_distortion": 0.12,
+  "roughness": 0.74,
+  "metallic": 0.0,
+  "micro_bump_strength": 0.08,
+  "micro_bump_scale": 24.0,
+  "render": {
+    "resolution": 768,
+    "views": [
+      {"name": "front_left", "azimuth": 35.0, "elevation": 20.0},
+      {"name": "front_right", "azimuth": 145.0, "elevation": 20.0},
+      {"name": "rear_right", "azimuth": 215.0, "elevation": 18.0},
+      {"name": "rear_left", "azimuth": 325.0, "elevation": 18.0}
+    ]
+  }
+}
