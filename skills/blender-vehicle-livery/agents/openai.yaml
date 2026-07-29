@@ -1,7 +1,7 @@
 interface:
-  display_name: "Blender Vehicle Livery"
-  short_description: "Material-rich anime vehicle livery styles"
-  default_prompt: "Use $blender-vehicle-livery to turn reference artwork into a material-rich layered vehicle livery with reusable style cards and Blender previews."
+  display_name: "Vehicle Livery Studio"
+  short_description: "Blender/Painter native Agent livery workflow"
+  default_prompt: "Use $blender-vehicle-livery for the active host: keep the existing layered workflow in Blender; in Substance 3D Painter, frame the viewport, inspect reference-tray assets as visual input, generate an aspect-safe raster, import it, create an editable native Fill projection layer, and verify direct plus oblique views."
 
 dependencies:
   tools:

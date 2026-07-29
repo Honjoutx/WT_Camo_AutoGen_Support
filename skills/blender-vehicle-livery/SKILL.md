@@ -1,9 +1,9 @@
 ---
 name: blender-vehicle-livery
-description: Inspect, recolor, live-preview, render, and export vehicle 3D models through Blender MCP using procedural paint, ordered anime image layers, per-mask roughness/metallic/clear-coat controls, directional projectors, a reusable style-card library, a Blender control panel, and hot-reloadable JSON projects. Use for vehicle livery, itasha/anime wraps, character decals, camouflage, paint, colorway, style-reference decomposition, directional image projection, layered material design, live preset editing, turntable preview, or Blender asset-export tasks involving .blend, .obj, .fbx, .gltf, or .glb files.
+description: Inspect, design, apply, live-preview, and export vehicle liveries through Blender MCP and the native Adobe Substance 3D Painter Vehicle Livery Agent plugin. Use for anime wraps, character decals, camouflage, paint, screenshot-framed Painter design, native Fill/Planar/UV/Triplanar projection layers, Agent-assisted asset generation, material tuning, and .spp, .blend, .obj, .fbx, .gltf, or .glb work.
 ---
 
-# Blender Vehicle Livery
+# Vehicle Livery for Blender and Substance 3D Painter
 
 Use Blender MCP for live scene access and the bundled scripts for deterministic vehicle processing. Preserve source assets and write every generated file to a new output directory.
 
@@ -17,6 +17,21 @@ Use Blender MCP for live scene access and the bundled scripts for deterministic 
 6. Apply the material with `scripts/pipeline.py` or import `scripts/blender_livery_core.py` from a bounded `execute_blender_code` call.
 7. Render at least two preview angles. Inspect the previews before reporting success.
 8. Save a new `.blend`, export a `.glb`, and retain `report.json` with the exact targets and preset.
+
+When the user is already texturing in Adobe Substance 3D Painter, or wants native Painter layers and projection gizmos, use the Painter workflow below.
+
+## Native Substance 3D Painter workflow
+
+1. Read [references/painter-livery-studio.md](references/painter-livery-studio.md). Use Painter 10.1+; the project implementation is validated against Painter 11.0.1, Python 3.11, PySide6, and the Layer Stack API.
+2. Install with `scripts/install-painter-livery-plugin.ps1`, then launch with `scripts/start-painter-livery.ps1`. The launcher sets the project root and requests `vehicle_livery_studio` as a startup plugin for that Painter process; it does not alter the global registry.
+3. Work only in the native **Window > Vehicle Livery Agent** dock. Keep the Agent bridge headless; do not open the legacy browser workbench for a Painter task.
+4. Rotate the Painter 3D viewport to the intended projection view, click **截图并框选设计区域**, and frame the actual target surface. Treat the screenshot rectangle as a visual-generation boundary and composition reference, not as proof of face ownership or UV coverage.
+5. Before sending, optionally drag up to 16 existing project images, external image files, or exposed Painter Asset records into **参考素材库**. Stage external images under `assets/painter-library/references/`, send them as `reference_assets`, and treat them only as visual inputs—not automatic output or applied texture. Then send the saved full screenshot, selected crop, normalized frame, Painter version, project/mesh path, texture-set summary, active stack, optional primary input image, projection mode, and output contract through the local Agent bridge. Explicitly attach this Skill on every turn.
+6. Require the Agent result to end with `LIVERY_ASSET: <project-relative-path>`. Keep generated files under `assets/livery-studio/generated/`, then copy/import a versioned source into `assets/painter-library/textures/`. Never overwrite an earlier result.
+7. Import the result into the open `.spp` project and optionally the user Shelf. For an editable applied result, create a native Fill layer on the active texture-set stack, activate only Base Color, assign the imported project texture, set the chosen projection mode, and select the new layer.
+8. Use **Planar** for view-oriented character posters and framed decals, **UV** for artwork authored against a known UV layout, and **Triplanar** for repeating/continuous material texture. Use Spherical or Cylindrical only when the physical form and artwork genuinely require them.
+9. After layer creation, manually adjust Painter's projection gizmo and masks while inspecting direct and oblique views. A screenshot-framed generation still needs Painter-side geometry masking or hand cleanup when occluding parts share the same texture set.
+10. Store capture sessions under `painter-livery-studio/state/captures/`, resource provenance in `assets/painter-library/index.json`, and plugin runtime evidence in `painter-livery-studio/state/runtime.json`.
 
 For anime artwork, character decals, logos, text, or manual-style directional image placement, use the ordered projector workflow below instead of assigning more material slots.
 
@@ -184,6 +199,12 @@ python .\skills\blender-vehicle-livery\scripts\style_catalog.py validate
 ## Safety and quality gates
 
 - Never overwrite the input model or its source textures.
+- Reject Painter projection-layer creation when no `.spp` project is open, the project is not in edition state, no active texture-set stack exists, or the texture was not imported as a retrievable Painter resource.
+- For Painter's headless Agent service, resolve Codex outside the DCC process PATH when necessary, require the livery service ID/API version, and surface returned JSON error details.
+- Stage external reference images inside the project, deduplicate them, limit the tray to 16 records, and never claim pixel inspection of a metadata-only Painter `resource://` record.
+- During Painter startup or hot reload, do not obtain fallback icons through a transient `QWidget.style()`/`QCommonStyle` wrapper; use an owned `QIcon` or image thumbnail.
+- Treat Painter screenshot selection as an art-direction boundary only. Verify direct and oblique views, and use Painter masks or known UVs for unwanted geometry coverage.
+- Keep Painter imports versioned under the project library and embed production textures into the `.spp`; a Shelf-only copy does not make the project portable.
 - Reject an empty target match instead of silently painting unrelated meshes.
 - Record missing MTL files, missing images, absent UV layers, and shared-material risks.
 - When a project enables side-symmetry and hero-protection rules, reject missing mirror pairs, rear-facing hero metadata, or non-name layers stacked above hero art.

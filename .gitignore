@@ -1,17 +1,24 @@
 # Project-local tools and Blender state
 /.blender/
 /.codex/
+/.codex-tmp/
 /.tools/
 /.venv/
 /venv/
 
 # User-owned source models, artwork, and style references
 /SMSV/
+/2s38/
 /style1/
 /assets/
 
 # Generated Blender masters, exports, previews, and reports
 /outputs/
+/dist/
+/painter-livery-studio/
+/livery-workbench/state/
+/livery-workbench/cache/
+/livery-workbench/settings.json
 *.blend
 *.blend1
 *.blend2

@@ -79,3 +79,35 @@ Record one entry for every rendered visual trial. Promote reusable findings into
 - R1 result: rejected after render review. The roof-radar depth correction succeeded and covered both the main screen and lower subpanel, but the new square-radar projector was centered on a smaller rear plate near `Y=-1.07`; the visible frontmost X-braced panel therefore stayed in base mint paint. Automatic layer and equipment-zone checks alone did not catch the semantic surface mismatch.
 - R2 correction: inspect the direct-front structure guide again, identify the actual X-braced radar patch at approximately `X=-0.666..0.646`, `Z=1.965..3.136`, `Y=-3.10..-2.48`, and move the projector to `[0,-2.75,2.55]` with size `[1.5,1.3]`, total depth `0.85`, facing threshold `0.60`, and required depth range `-0.381..0.332`. Regenerate the four single-color assets to fill the taller panel while retaining diagonal X-brace corridors.
 - R2 result: passed in `pantsyr-mint-industrial-panel-v9-radar-complete-r2`. All 49 layers applied, all 49 aspect audits passed, all 17 previews rendered, and the equipment-zone/depth contract test passed. Direct front, radar-front, forward-radar, top, and high three-quarter views confirm full roof-radar coverage, an independently designed forward X-braced panel, readable sparse frog/snake sensor glyphs, and no material projection onto the turret sides. The missing source MTL warning remains; the layered `.blend` is the authoritative master.
+
+## 2026-07-29 - Native Substance 3D Painter 11 plugin
+
+- Request: replace the browser/Blender-hosted editing direction with a native Substance 3D Painter plugin that keeps Agent + Skill, screenshot framing, generated-resource handling, and application inside Painter.
+- Environment correction: the reinstalled host is Painter `11.0.1` at the same application path, with Python `3.11.6`, PySide6, and the modern `substance_painter.layerstack` API. Remove the obsolete Painter 9 assumption and do not load PySide2 widgets into this host.
+- Implementation: create `vehicle_livery_studio` as an optional/startup-loadable Painter package; expose one dock for project discovery, headless local Agent connection, screenshot cropping, in-panel approvals, image import, user Shelf indexing, and projection choice. Version every image copied into the project library.
+- Layer correction: after importing a texture into the current `.spp`, create a native Fill layer on the active Texture Set stack, enable only Base Color, assign the imported project `ResourceID`, set Planar/UV/Triplanar/Spherical/Cylindrical projection, and select the new layer for manual gizmo refinement.
+- Boundary rule: a screenshot frame constrains generated composition but cannot uniquely prove covered polygons. Validate the direct view plus two oblique views and use Painter masks or a known UV layout for shared/occluding geometry.
+- Launch behavior: install under Painter's user `python/plugins` directory. The project launcher sets only process-local plugin variables and requests the plugin as a startup module, avoiding registry edits and avoiding a separate browser page.
+- Skill updates: `SKILL.md`, `agents/openai.yaml`, `references/painter-livery-studio.md`, `references/iteration-log.md`, `painter_plugins/vehicle_livery_studio/`, `livery-workbench/agent_bridge.py`, and the Painter install/build/start scripts.
+
+## 2026-07-29 - Painter Agent HTTP 404 and reduced-PATH recovery
+
+- Finding: the Painter dock connected to `/api/health`, but Send returned `HTTP Error 404: Not Found`. Replaying the exact request exposed the hidden JSON body: the background server could not find Codex CLI.
+- Cause: Painter launched the local Python service with a reduced `PATH`; `codex.exe` lived inside the current `openai.chatgpt-*` VS Code extension. The bridge used only `shutil.which("codex")`, and the HTTP server mapped every `FileNotFoundError` to 404, hiding the actionable cause.
+- Correction: resolve an explicit `CAMO_CODEX_PATH` first, then normal PATH, then the newest supported VS Code/VS Code Insiders/Cursor extension executable. Pass the resolved path from the Painter launcher, add a service ID/API version/Agent-availability health contract, and preserve JSON error details in the Painter client.
+- Validation: with Codex deliberately absent from `PATH`, the resolver found `codex.exe` in the current VS Code extension. The updated service reported `service: camo-auto-gen-livery-agent`, `apiVersion: 2`, and `agentAvailable: true`; `/api/agent/message` returned `202` with valid thread/turn IDs. After recoverable upstream reconnect activity, the streamed reply completed as `Painter Agent 连接测试成功` with a normal `turn_completed` event and no file writes.
+- Release: publish Painter plugin `0.2.1` and update the Painter failure-routing reference in the same iteration.
+
+## 2026-07-29 - Painter drag/drop Agent reference library
+
+- Request: browse existing artwork inside Painter, drag selected resources into the current task, and give the embedded Agent stronger visual context without applying those images automatically.
+- Implementation: add an incrementally loaded thumbnail project library for the managed asset roots and current `2s38/`, `SMSV/`, and `style1/` source-art folders; add a persistent 16-item reference tray with search, double-click, file drag/drop, Painter `resource://` recognition, remove, and clear controls.
+- Data contract: copy external files into versioned `assets/painter-library/references/` paths, deduplicate records, and send them as `context.reference_assets` with an explicit reference-only policy. Painter resource records carry name/type/usage metadata when the public API does not expose readable pixels.
+- Release: publish Painter plugin `0.3.0`; validate staging, MIME extraction, persistence, Agent context wiring, installation, and the packaged ZIP in the same iteration.
+
+## 2026-07-29 - Painter reference-tray QCommonStyle reload failure
+
+- Observed problem: Painter rejected plugin `0.3.0` during `_load_values()` because `ReferenceDropList.set_records()` called `self.style().standardIcon()` and the returned `QCommonStyle` C++ object was already deleted.
+- Cause: the host may invalidate temporary Qt style wrappers while the Python plugin is being hot-reloaded, even before the dock is fully attached.
+- Correction: remove all reference-tray dependence on `QWidget.style()` and use a Python-owned empty `QIcon` as the metadata-resource fallback; local image records still use their own decoded thumbnails.
+- Release and validation: publish plugin `0.3.1`, confirm no `style()` or `standardIcon()` call remains in the package, compile the full plugin, reinstall it, and rebuild the distributable ZIP.
