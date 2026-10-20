@@ -1,0 +1,55 @@
+Vehicle livery workflow and execution guide
+
+Scope
+This guide defines a reusable process. The current project brief controls themes, characters, colors, fonts, orientation and poster style. Do not inherit these choices from other projects.
+The workflow screen does not list historical projects, character settings, palettes, unfinished work or output paths. Read historical material only when the user explicitly requests it.
+
+01 Initial model repair and grouping
+Inspect OBJ / MTL, geometry, normals, materials, texture paths, UV ranges and repeated sampling. Preserve original files and UV evidence.
+For UVs outside 0..1, distinguish integer phase shifts, tiling and mirroring. Repair only proven shifts; never apply per-vertex modulo, repack UVs, weld or change topology without authorization.
+Group by structure: hull, turret, barrel, equipment and detachable armor. Tracks may be excluded from painting and restored for rendering. Names and object indices are clues; geometry, materials and assembly determine ownership.
+Save repaired models, material relationships, module assignments, uncovered parts and a repair report.
+
+02 Brief and assets
+Record theme, palette, characters, fonts, exact text, target surfaces, orientation, cropping, materials, resolution and deliverables.
+Preserve source artwork and its provenance. Background removal must not modify a character. Create separate projects for different vehicles or character variants; related projects may share an asset library.
+
+03 Design sketch
+Save a viewable sketch before detailed design. Establish large color areas, flow, contrast, density, focal points and character safe zones. Keep the sketch revision.
+Check continuity across assembled modules; detail cannot replace the overall composition.
+
+04 Principal physical surfaces
+Use large hull and turret sides, tops and front surfaces, plus the barrel and equipment.
+A directional region covers the principal structure, not every face visible from that direction. Merge contiguous coplanar plates. Treat slopes and protrusions according to their geometry.
+Record actual face IDs, footprints, art coordinates and masks. Place characters on continuous surfaces where protrusions will not split their image.
+
+05 Surface design
+Compose each surface independently and check continuity after assembly. Establish the framework, main patterns, detail, characters and typography in that order.
+Dense patterns still require hierarchy. Prefer vectors for fine lines, dots, grids, type and color areas; avoid blurry edges and uniform visual noise.
+Keep source image quality and alpha. Follow the brief for character direction, scale and crop. Preserve spelling and required fonts.
+
+06 Materials and normals
+Distinguish paint, graphics, lettering, metal, rubber, cloth and glass. Set metallic, roughness, relief and shadows by layer and physical material.
+Use bright highlights only where the brief calls for them. Smooth fine normal noise while preserving seams, bolts, engraved lines and hard edges.
+Check reflections, highlights, exposure and noise in an actual render.
+
+07 Migration between related models
+Transfer layouts using physical coordinates and common anchors. Keep each model's original UVs. Crop absent geometry rather than squeezing the full design.
+Inventory different equipment. Declare common patterns and priority for shared UVs. Inspect complete source models instead of assuming all base parts match.
+
+08 Mapping inspection and repair
+Trace a reported physical part through face IDs, original UVs, ownership, art coordinates, masks, materials, atlas merging and final files.
+Distinguish canvas, model-preview, exported-atlas and in-game loading errors. Establish evidence, then change only the affected domain. Report unresolved issues accurately.
+
+09 Export and storage
+Preserve original UVs. Supply at least 2K or the requested 4K / 8K resolution. Export only changed original atlases and selected channels, flat in one directory.
+Use the established filename rules and Basecolor, Metallic, Roughness, Smoothness, Normal and Height suffixes. Handle game-specific packing separately.
+Default to compact storage: reuse immutable assets and create ZIPs when downloaded. Use portable copies for independent handoff. Do not delete shared assets that projects still reference. Rebuild missing caches from valid inputs.
+
+10 Rendering and poster assets
+Produce a clean render first. Preserve manually adjusted models and cameras. Follow the current brief for scene, composition, lighting, transparency and background style.
+Keep requested floor and contact shadows; denoise adequately. Deliver the model render, character artwork, background, lettering and border separately when requested. Generated images must not distort the finished vehicle render.
+
+Execution and live sync
+Prefer background processing and use capabilities actually configured on this machine. Keep inputs, operations, parameters, outputs and necessary evidence. Do not publish automatically.
+The interface watches the current layout, sources, masks, assets and configuration. Unsaved manual edits or revision conflicts pause replacement. Back up local edits before loading a background revision.

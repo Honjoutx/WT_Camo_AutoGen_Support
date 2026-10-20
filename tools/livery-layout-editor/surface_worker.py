@@ -1,5 +1,6 @@
 """Compose separate physical planes, then register their pixels into original UVs."""
 from pathlib import Path
+from external_process import run as external_run
 import sys,argparse,json,os,copy,subprocess,traceback,zipfile,shutil
 import numpy as np
 from PIL import Image
@@ -120,7 +121,7 @@ try:
     _,preview_audit=original_atlas_images(p,rows,O,'pbr',size,lambda stage,progress:update(stage,80+int((progress-84)/13*2)))
     write_game_atlas_manifest(p,O,preview_audit)
    update('应用原 UV 贴图 · GPU 模型预览',83);cmd=[__import__('runtime').blender_executable(),'--background','--python-exit-code','1','--python',str(HERE/'gpu_bootstrap.py'),'--python',str(HERE/'native_preview.py'),'--',str(O),str(model),job['mode']]
-   with (O/'pipeline.log').open('w',encoding='utf8') as log:r=subprocess.run(cmd,cwd=ROOT,env={**os.environ,'LIVERY_OUTPUT_DIR':str(O),'LIVERY_RENDER_SETTINGS':str(O/'evidence/render-settings.json')},stdout=log,stderr=subprocess.STDOUT)
+   with (O/'pipeline.log').open('w',encoding='utf8') as log:r=external_run(cmd,cwd=ROOT,env={**os.environ,'LIVERY_OUTPUT_DIR':str(O),'LIVERY_RENDER_SETTINGS':str(O/'evidence/render-settings.json')},stdout=log,stderr=subprocess.STDOUT)
    if r.returncode:raise RuntimeError('原 UV 模型应用或 GPU 预览失败：pipeline.log')
    job['files'].append(link('Layout_Working.blend','当前平面布局 · 原 UV 模型'));job['previews'].append(link('previews/model.png','平面编辑结果 · GPU 模型预览'))
  if job['mode'] in FINAL_MODES:

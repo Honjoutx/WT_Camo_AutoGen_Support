@@ -103,7 +103,7 @@ def main():
     parser.add_argument('--model')
     args = parser.parse_args(sys.argv[sys.argv.index('--') + 1:])
     repo = Path(args.repo).resolve()
-    data = repo / 'data/blender'
+    data = Path(os.environ.get('WT_CAMO_BLENDER_DATA') or repo / 'data/blender')
     addon = data / 'scripts/addons/blender_mcp.py'
     expected = json.loads((repo / 'config/blender-mcp.lock.json').read_text(encoding='utf-8'))
     digest = hashlib.sha256(addon.read_bytes()).hexdigest()

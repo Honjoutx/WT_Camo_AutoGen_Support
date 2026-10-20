@@ -3,8 +3,8 @@ from pathlib import Path
 import copy,hashlib,json,os,threading,xml.etree.ElementTree as ET
 from urllib.parse import quote
 
-from runtime import ROOT
-WEB=Path(__file__).resolve().parent/'web'
+from runtime import ROOT,HERE
+WEB=HERE/'web'
 IMAGES={'.svg','.png','.jpg','.jpeg','.webp','.avif'}
 
 def fingerprint(value):return hashlib.sha256(json.dumps(value,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8')).hexdigest()

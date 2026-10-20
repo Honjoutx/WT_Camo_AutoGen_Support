@@ -96,7 +96,8 @@ def finalize():
 def availability():
  # Probe in a short-lived process; the HTTP server never owns CUDA contexts.
  try:
-  result=subprocess.run([sys.executable,str(Path(__file__)),'--probe'],
+  from runtime import HERE
+  result=subprocess.run([sys.executable,str(HERE/'export_acceleration.py'),'--probe'],
        capture_output=True,text=True,encoding='utf8',timeout=30,
        creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
   if result.returncode:raise RuntimeError(result.stderr[-700:] or 'GPU 检测失败')

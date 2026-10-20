@@ -5,7 +5,8 @@ from urllib.parse import urlparse,unquote,parse_qs,quote
 from datetime import datetime,timezone,timedelta
 import argparse,gzip,json,mimetypes,re,subprocess,sys,threading,uuid,os,ctypes,copy,shutil
 os.environ['PYTHONUTF8']='1';os.environ['PYTHONIOENCODING']='utf-8'
-sys.stdout.reconfigure(encoding='utf8',errors='replace');sys.stderr.reconfigure(encoding='utf8',errors='replace')
+if sys.stdout:sys.stdout.reconfigure(encoding='utf8',errors='replace')
+if sys.stderr:sys.stderr.reconfigure(encoding='utf8',errors='replace')
 from project import HERE,ROOT,STATE,read,write_json
 from projects import ProjectManager,scoped
 from assets import UPLOAD_LIMIT
@@ -87,7 +88,7 @@ class Handler(BaseHTTPRequestHandler):
    STUDIO.guard(self)
    path=unquote(urlparse(self.path).path)
    if STUDIO.get(self,path):return
-   if path in ['/studio.js','/studio.css','/storage-ui.js','/live-refresh.js']:return self.file(HERE/'web'/path[1:])
+   if path in ['/studio.js','/studio.css','/storage-ui.js','/live-refresh.js','/i18n.js','/locales/en.js','/settings-ui.js']:return self.file(HERE/'web'/path[1:])
    if path in ['/','/index.html','/app.js','/style.css','/fonts.css','/extras.css','/transform.js','/shadow.js','/export-files.js','/export-gpu.js']:return self.file(HERE/'web'/('index.html' if path=='/' else path[1:]))
    if path=='/api/projects':return self.respond(MANAGER.listing())
    if path=='/api/project':return self.respond(STUDIO.live.payload(parse_qs(urlparse(self.path).query).get('project',[MANAGER.registry['active_project']])[0]))

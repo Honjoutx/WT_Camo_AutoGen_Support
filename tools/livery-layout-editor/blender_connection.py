@@ -5,18 +5,20 @@ import json
 import os
 import re
 import socket
+import sys
 
-from runtime import APP, SETTINGS
+from runtime import APP,APP_DATA,FROZEN,SETTINGS
 
-DATA = APP / 'data/blender'
+DATA = APP_DATA / 'blender'
 LOCK = APP / 'config/blender-mcp.lock.json'
 ADDON = DATA / 'scripts/addons/blender_mcp.py'
-PYTHON = APP / '.tools/blender-mcp-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
+PYTHON = Path(sys.executable) if FROZEN else APP / '.tools/blender-mcp-env' / ('Scripts/python.exe' if os.name == 'nt' else 'bin/python')
 REQUIRED_TOOLS = {'get_scene_info', 'get_object_info', 'execute_blender_code'}
 
 
 def settings():
-    value = {'enabled': True, 'host': '127.0.0.1', 'port': 18876, 'server_name': 'wt_camo_blender'}
+    value = {'enabled': True, 'host': '127.0.0.1', 'port': 18877 if FROZEN else 18876,
+             'server_name': 'wt_camo_desktop_blender' if FROZEN else 'wt_camo_blender'}
     value.update(SETTINGS.get('blender_mcp', {}))
     value['port'] = int(os.environ.get('WT_CAMO_BLENDER_MCP_PORT', value['port']))
     if value['host'] != '127.0.0.1' or not 1024 <= value['port'] <= 65535:
@@ -45,7 +47,7 @@ def installed():
 
 def spec():
     config = settings()
-    return {'command': str(PYTHON), 'args': ['-c', 'from blender_mcp.server import main; main()'],
+    return {'command': str(PYTHON), 'args': ['--blender-mcp-stdio'] if FROZEN else ['-c', 'from blender_mcp.server import main; main()'],
             'env': {'BLENDER_HOST': config['host'], 'BLENDER_PORT': str(config['port']),
                     'DISABLE_TELEMETRY': 'true', 'PYTHONUTF8': '1'},
             'startup_timeout_sec': 30.0, 'tool_timeout_sec': 180.0,

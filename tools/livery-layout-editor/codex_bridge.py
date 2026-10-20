@@ -2,6 +2,7 @@
 from pathlib import Path
 from datetime import datetime,timezone
 import atexit,copy,json,os,queue,re,shutil,subprocess,threading,uuid
+from external_process import popen as external_popen
 from project import ROOT, HERE, read, write_json
 from workflow import context,CORE_RULES
 
@@ -12,7 +13,7 @@ def executable():
 
 class CodexProcess:
  def __init__(self,callback):
-  self.callback=callback;self.process=None;self.pending={};self.next_id=0;self.write_lock=threading.Lock();self.start_lock=threading.RLock();self.generation=0;self.errors=[];self.mcp_args=[]
+  self.callback=callback;self.process=None;self.pending={};self.next_id=0;self.write_lock=threading.Lock();self.start_lock=threading.RLock();self.generation=0;self.errors=[];self.mcp_args=[];self.binary=None
  def send(self,data):
   with self.write_lock:
    if not self.process or self.process.poll() is not None:raise RuntimeError('Codex 后台进程未运行。')
@@ -30,10 +31,10 @@ class CodexProcess:
  def ensure(self):
   with self.start_lock:
    if self.process and self.process.poll() is None:return
-   binary=executable();self.generation+=1;generation=self.generation
+   binary=executable();self.binary=binary;self.generation+=1;generation=self.generation
    from blender_connection import app_server_args
    self.mcp_args=app_server_args()
-   self.process=subprocess.Popen([binary,'app-server','--listen','stdio://',*self.mcp_args],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',bufsize=1,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
+   self.process=external_popen([binary,'app-server','--listen','stdio://',*self.mcp_args],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',bufsize=1,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
    proc=self.process
    def stdout():
     try:
@@ -98,7 +99,7 @@ class ChatService:
    if connect:
     from blender_connection import app_server_args
     with self.lock:
-     if not any(s.get('busy') for s in self.sessions.values()) and self.process.mcp_args!=app_server_args():self.process.close()
+     if not any(s.get('busy') for s in self.sessions.values()) and (self.process.mcp_args!=app_server_args() or self.process.binary!=executable()):self.process.close()
     self.process.ensure();result['connected']=True
     account=self.process.rpc('account/read',{'refreshToken':False})
     a=account.get('account');result['signed_in']=bool(a);result['auth_type']=a.get('type') if a else None;result['requires_auth']=account.get('requiresOpenaiAuth',True)
@@ -133,7 +134,9 @@ class ChatService:
    f=self.root(pid)/'attachments'/ident
    if not f.is_file():raise FileNotFoundError('附件不存在。')
    attachments.append(f)
-  payload=context(self.manager,pid,data.get('region'),data.get('stage'))+'\n\n用户消息：\n'+text
+  language=data.get('language','zh-CN')
+  if language not in ('zh-CN','en'):raise ValueError('Unsupported language.')
+  payload=context(self.manager,pid,data.get('region'),data.get('stage'),language=language)+'\n\nUser message:\n'+text
   with self.lock:
    if s['busy']:raise ValueError('当前会话正在执行，请先停止或等待完成。')
    s['busy']=True

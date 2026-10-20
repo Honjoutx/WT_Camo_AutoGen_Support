@@ -16,7 +16,7 @@ STAGES=[
  dict(id='export',title='09 原 UV 贴图导出',summary='2K 起，支持 4K / 8K、指定图集与 GPU。',prompt='仅导出相对原图修改过的原始材质图集，不将内部板块/材质域当作最终文件数量。保留原 UV；至少 2K，按需 4K/8K；GPU 为可选，渲染使用 GPU。最终图片平铺在一个目录，文件名删除 _c/_n 到通道后缀前的部分，使用 _Basecolor/_Metallic/_Roughness/_Smoothness/_Normal/_Height。可选择具体图集和通道。PNG 为中间交付；若用于游戏发布，按游戏要求另做通道打包、DDS/TGA 与 .blk，不改 UV。保存清单、来源、缓存依赖；旧输出清理后必须能从有效源重建。'),
  dict(id='poster',title='10 渲染与海报素材',summary='按当前构图渲染，人物、背景与排版分别交付。',prompt='先制作干净渲染，保留用户手调模型与相机。场景、构图、光照、背景和样式以当前任务书为准，不继承其他项目。需要时恢复原履带及贴图，使用许可清楚的场景。透明需求区分天空、地板、阴影和道具，充分降噪。原模型渲染不能被生图重绘畸变；人物、阴影、背景、文字和边框分层提供。'),
 ]
-CORE_RULES=f'''你是这个本地涂装工作台的设计执行助手。以中文交流，直接完成用户已授权的工作。
+CORE_RULES=f'''你是这个本地涂装工作台的设计执行助手。按当前消息指定的界面语言交流，直接完成用户已授权的工作。
 会话开始或规范变更时阅读 {GUIDE}；后续只读取当前阶段需要的当前项目配置与源文件，遵循用户最新明确要求。默认不读取、罗列或向界面暴露历史项目案例、角色和配色；只有用户明确要求参考时才读取相关历史资料。
 保留模型原 UV、几何、法线和原素材；任何修复先备份并给出可追溯证据。先草图再正式设计。大结构按主要平面设计，突出件单独处理。
 只在当前明确项目操作，不改其他车型或全局配置；跨项目迁移必须由用户选择。操作版本化保存，不能覆盖手工布局。
@@ -26,15 +26,36 @@ CORE_RULES=f'''你是这个本地涂装工作台的设计执行助手。以中�
 未完成事项不得标完成；给出修改文件、结果和必要的局部验证。减少重复全量导出与无意义截图。
 '''
 
-def catalogue():return {'stages':STAGES,'guide_path':str(GUIDE),'guide':GUIDE.read_text(encoding='utf-8'),'version':2}
+ENGLISH_STAGES=[
+ ('01 Model repair and grouping','Inspect source geometry and UVs; group by physical structure.'),
+ ('02 Brief and source assets','Record the theme, characters, typography, palette and deliverables.'),
+ ('03 Design sketch','Establish flow, contrast and density before adding detail.'),
+ ('04 Principal surface regions','Design large physical surfaces; isolate slopes and protrusions.'),
+ ('05 Surface art and characters','Compose each surface separately and check assembled continuity.'),
+ ('06 Materials and normals','Set metallic, roughness and relief while retaining structural detail.'),
+ ('07 Related model migration','Share physical layouts; register each model’s original UVs.'),
+ ('08 Coverage and mapping fixes','Trace faces, masks, material bindings and final atlases.'),
+ ('09 Original UV texture export','Export changed atlases with channel selection and optional GPU compute.'),
+ ('10 Rendering and poster assets','Keep accepted cameras; deliver renders and design elements separately.')]
 
-def context(manager,pid,region=None,stage=None,notes=''):
+def stage_rows(language):
+ return [{**s,'title':en[0],'summary':en[1]} for s,en in zip(STAGES,ENGLISH_STAGES)] if language=='en' else STAGES
+
+def catalogue(language='zh-CN'):
+ guide=HERE/'docs'/('workflow-guide.en.txt' if language=='en' else GUIDE.name)
+ return {'stages':stage_rows(language),'guide_path':str(guide),'guide':guide.read_text(encoding='utf-8'),'version':3,'language':language}
+
+def context(manager,pid,region=None,stage=None,notes='',language='zh-CN'):
+ from runtime import FROZEN
+ import sys
  c=manager.config(pid);P=ROOT/c['directory'];details={'project_id':pid,'project_directory':str(P),'workspace':str(ROOT),'project_config':c,'selected_region':region}
  details.update(tool_directory=str(HERE),workflow_skill=str(HERE.parents[1]/'.agents/skills/wt-camo-workflow/SKILL.md'))
+ details['python_worker_launcher']=[sys.executable,'--run-script'] if FROZEN else [sys.executable]
  if c['type'] in ['boards','native-uv']:
   details.update(contract=str(P/'model-project.json'),layout=str(P/'state/current.json'))
  if c.get('surface_directory'):
   contract=read(P/c['surface_directory']/'contract.json');details.update(surface_contract=str(P/c['surface_directory']/'contract.json'),native_contract=str(P/contract['native_contract']),model=str(P/contract['model']),layout=str(P/'state'/('surface-'+Path(c['surface_directory']).name)/'current.json'))
  if region:details['region']=contract.get('regions',{}).get(region) if c.get('surface_directory') else None
- stage_row=next((s for s in STAGES if s['id']==stage),None)
- return '\n\n'.join([CORE_RULES,'当前界面上下文：\n'+json.dumps(details,ensure_ascii=False,indent=2),('当前流程：'+stage_row['title']+'\n'+stage_row['prompt']) if stage_row else '',('用户任务补充：'+notes) if notes else ''])
+ stage_row=next((s for s in stage_rows(language) if s['id']==stage),None)
+ reply='Reply in English unless the user asks for another language.' if language=='en' else '除非用户另有要求，以中文交流。'
+ return '\n\n'.join([CORE_RULES,reply,'Current interface context:\n'+json.dumps(details,ensure_ascii=False,indent=2),('Current workflow: '+stage_row['title']+'\n'+stage_row['prompt']) if stage_row else '',('Additional user requirements: '+notes) if notes else ''])

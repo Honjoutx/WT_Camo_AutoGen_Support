@@ -8,9 +8,10 @@ from model_intake import IntakeService
 from workflow import catalogue
 from project import ROOT,HERE,read,write_json
 from live_projects import LiveProjects
+import app_settings
 
 class StudioAPI:
- def __init__(self,manager):self.manager=manager;self.chat=ChatService(manager);self.intake=IntakeService(manager);self.live=LiveProjects(manager)
+ def __init__(self,manager):self.manager=manager;self.chat=ChatService(manager);self.intake=IntakeService(manager);self.live=LiveProjects(manager);self.blender=app_settings.BlenderManager()
  def guard(self,h):
   hostname=urlparse('http://'+h.headers.get('Host','')).hostname
   if hostname not in ['127.0.0.1','localhost','::1']:raise ValueError('工作台仅允许本机访问。')
@@ -21,9 +22,12 @@ class StudioAPI:
   if not path.startswith(('/api/codex','/api/workflow','/api/intake','/api/studio')):return False
   self.guard(h);q=parse_qs(urlparse(h.path).query);pid=self.pid(h)
   if path=='/api/studio/health':h.respond({'application':'wt-camo-workbench','version':19,'codex_chat':True,'model_intake':True,'compact_storage':True,'live_refresh':True});return True
+  if path=='/api/studio/preferences':h.respond(app_settings.preferences());return True
+  if path=='/api/studio/settings':h.respond(app_settings.view());return True
+  if path=='/api/studio/blender':h.respond(self.blender.status());return True
   if path=='/api/studio/revision':h.respond(self.live.revision(pid));return True
   self.manager.config(pid)
-  if path=='/api/workflow':h.respond(catalogue());return True
+  if path=='/api/workflow':h.respond(catalogue(q.get('language',['zh-CN'])[0]));return True
   if path=='/api/studio/artifact':
    f=Path(q.get('path',[''])[0]).resolve()
    if not f.is_relative_to(ROOT.resolve()) or not f.is_file():raise ValueError('仅能打开工作目录中的现有文件。')
@@ -59,7 +63,10 @@ class StudioAPI:
    h.respond({'id':name,'url':'/api/codex/attachment/'+name+'?project='+pid},201);return True
   if h.headers.get('Content-Type','').split(';')[0]!='application/json' or not 0<length<2000000:raise ValueError('请求应为有效 JSON。')
   data=json.loads(h.rfile.read(length));cid=data.get('chat_id')
-  if path=='/api/codex/chats':h.respond(self.chat.create(pid),201)
+  if path=='/api/studio/preferences':h.respond(app_settings.save_preferences(data))
+  elif path=='/api/studio/settings':h.respond(app_settings.save(data))
+  elif path=='/api/studio/blender':h.respond(self.blender.start(data.get('action')),202)
+  elif path=='/api/codex/chats':h.respond(self.chat.create(pid,title='New chat' if data.get('language')=='en' else '新对话'),201)
   elif path=='/api/codex/send':h.respond(self.chat.submit(pid,cid,data),202)
   elif path=='/api/codex/interrupt':h.respond(self.chat.interrupt(pid,cid))
   elif path=='/api/codex/answer':h.respond(self.chat.answer(pid,cid,data['request_id'],data['result']))

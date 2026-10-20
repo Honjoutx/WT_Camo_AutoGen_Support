@@ -1,5 +1,7 @@
 # Blender MCP 接入
 
+桌面应用已内置服务端和校验过的插件，可在应用设置中启动；默认使用 `wt_camo_desktop_blender` 与 18877 端口。数据保存在用户数据目录。下文的虚拟环境安装和 PowerShell 命令针对源码版，详见 [桌面应用](desktop.zh-CN.md)。
+
 工作台可安装并启动独立后台 Blender，供内置 Codex 对话操作。无需点击 Blender 面板，不占用已打开的 Blender 场景，也不依赖示例车辆、旧预设或 Painter。没有指定模型时创建空场景。
 
 ## 一起启动

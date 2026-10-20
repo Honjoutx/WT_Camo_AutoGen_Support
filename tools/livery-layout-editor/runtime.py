@@ -2,12 +2,14 @@
 from pathlib import Path
 import json,os,shutil,sys
 
-HERE=Path(__file__).resolve().parent
+FROZEN=bool(getattr(sys,'frozen',False))
+HERE=Path(sys._MEIPASS)/'tools/livery-layout-editor' if FROZEN else Path(__file__).resolve().parent
 APP=HERE.parents[1]
-CONFIG=APP/'config/runtime.local.json'
+APP_DATA=Path(os.environ.get('WT_CAMO_APP_DATA') or (Path(os.environ.get('LOCALAPPDATA',str(Path.home())))/'WT Camo Workbench' if FROZEN else APP/'data')).expanduser().resolve()
+CONFIG=Path(os.environ.get('WT_CAMO_CONFIG') or (APP_DATA if FROZEN else APP)/'config/runtime.local.json')
 SETTINGS=json.loads(CONFIG.read_text(encoding='utf-8-sig')) if CONFIG.exists() else {}
 def configured(key,env):return os.environ.get(env) or SETTINGS.get(key)
-ROOT=Path(configured('workspace','WT_CAMO_WORKSPACE') or APP/'data/workspace').expanduser()
+ROOT=Path(configured('workspace','WT_CAMO_WORKSPACE') or APP_DATA/'workspace').expanduser()
 if not ROOT.is_absolute():ROOT=APP/ROOT
 ROOT=ROOT.resolve();ROOT.mkdir(parents=True,exist_ok=True)
 

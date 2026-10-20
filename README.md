@@ -1,10 +1,18 @@
 # WT Camo Auto Gen
 
+[简体中文](README.md) · [English](README.en.md)
+
 本地载具涂装工作台：用 Codex CLI 辅助模型审计、设计草图、分区矢量编辑、材质调整、原 UV 贴图导出与海报素材制作。
 
 仓库只包含工具、脚本、通用配置和自有工作流 skill。模型、角色素材、设计项目、生成结果、聊天记录及登录凭据保存在本地，不上传 Git。
 
-## 快速启动（Windows）
+## Windows 桌面应用
+
+解压 `WT-Camo-Workbench-Windows-x64.zip`，运行 **WT Camo Workbench.exe**。内置 Python 和工作台依赖，独立窗口运行；Codex CLI、Blender 使用本机安装。顶部可切换简体中文与 English，语言选择会保留，不翻译设计稿、素材名或聊天原文。
+
+用户工程与配置保存在 `%LOCALAPPDATA%/WT Camo Workbench/`，与应用资源分开。完整使用说明、构建和验证命令见 [桌面应用](docs/desktop.zh-CN.md)。
+
+## 源码快速启动（Windows）
 
 准备 **Python 3.11–3.13** 和已安装、已登录的 **Codex CLI**。下载后双击 **`start.cmd`**：
 

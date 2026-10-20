@@ -11,6 +11,7 @@ from export_selection import select_images
 from storage import prepare_job,compact_job,register_archive
 import resvg_py,numpy as np
 from PIL import Image
+from external_process import run as external_run
 parser=argparse.ArgumentParser();parser.add_argument('--job',required=True);args=parser.parse_args();O=Path(args.job).resolve();job=read(O/'job.json');project=ProjectManager().get(snapshot=read(O/'project-config.json'));state=project.validate(read(O/'layout.json'))
 def update(stage,progress,**extra):job.update(stage=stage,progress=progress,**extra);write_json(O/'job.json',job);print(stage,flush=True)
 def link(p,label):return dict(label=label,url=f'/job/{job["id"]}/{p}')
@@ -53,7 +54,7 @@ try:
   update('将当前图集应用到独立模型版本',70)
   blender=Path(__import__('runtime').blender_executable());cmd=[str(blender),'--background','--python-exit-code','1','--python',str(HERE/'gpu_bootstrap.py'),'--python',str(HERE/'native_preview.py'),'--',str(O),str(model),job['mode']]
   with (O/'pipeline.log').open('w',encoding='utf8') as log:
-   result=subprocess.run(cmd,cwd=ROOT,env={**os.environ,'LIVERY_OUTPUT_DIR':str(O),'LIVERY_RENDER_SETTINGS':str(O/'evidence/render-settings.json')},stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
+   result=external_run(cmd,cwd=ROOT,env={**os.environ,'LIVERY_OUTPUT_DIR':str(O),'LIVERY_RENDER_SETTINGS':str(O/'evidence/render-settings.json')},stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
   if result.returncode:raise RuntimeError('模型应用或 GPU 预览失败，请查看 pipeline.log。')
   job['files'].append(link('Layout_Working.blend','当前模型 · 新布局场景'))
   if job['mode']=='preview':job['previews'].append(link('previews/model.png','当前模型 GPU 预览'))

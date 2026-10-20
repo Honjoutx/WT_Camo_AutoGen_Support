@@ -11,12 +11,12 @@ import sys
 import time
 import urllib.request
 import uuid
-import venv
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / 'tools/livery-layout-editor'))
 import blender_connection as connection
-from runtime import blender_executable, codex_executable
+from runtime import blender_executable, codex_executable, FROZEN
+from external_process import popen as external_popen,run as external_run
 
 
 @contextmanager
@@ -56,7 +56,7 @@ def register():
     name = connection.settings()['server_name']
     desired = connection.spec()
     binary = codex_executable()
-    result = subprocess.run([binary, 'mcp', 'get', name, '--json'], capture_output=True, text=True, encoding='utf-8', timeout=30)
+    result = external_run([binary, 'mcp', 'get', name, '--json'], capture_output=True, text=True, encoding='utf-8', timeout=30)
     current = json.loads(result.stdout) if result.returncode == 0 else None
     receipt_path = connection.DATA / 'registration.json'
     receipt = json.loads(receipt_path.read_text(encoding='utf-8')) if receipt_path.exists() else {}
@@ -80,7 +80,7 @@ def register():
     for key, value in desired['env'].items():
         command.extend(['--env', key + '=' + value])
     command.extend(['--', desired['command'], *desired['args']])
-    result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', timeout=30)
+    result = external_run(command, capture_output=True, text=True, encoding='utf-8', timeout=30)
     if result.returncode:
         raise RuntimeError('Codex MCP registration failed; check CLI configuration permissions and version.')
     write_json(receipt_path, {'name': name, 'spec': {key: desired[key] for key in ('command', 'args', 'env')}})
@@ -89,10 +89,14 @@ def register():
 def setup(addon_file=None, no_register=False):
     connection.DATA.mkdir(parents=True, exist_ok=True)
     pinned = connection.lock()
+    if FROZEN and not addon_file:
+        addon_file=REPO/'vendor/blender_mcp/addon.py'
     if not connection.installed():
-        if not connection.PYTHON.is_file():
+        if not FROZEN and not connection.PYTHON.is_file():
+            import venv
             venv.EnvBuilder(with_pip=True).create(connection.PYTHON.parents[1])
-        subprocess.run([str(connection.PYTHON), '-m', 'pip', 'install', '-r', str(REPO / 'requirements-mcp.txt')], check=True)
+        if not FROZEN:
+            subprocess.run([str(connection.PYTHON), '-m', 'pip', 'install', '-r', str(REPO / 'requirements-mcp.txt')], check=True)
         if addon_file:
             content = Path(addon_file).read_bytes()
         else:
@@ -137,6 +141,7 @@ def start(blender=None, model=None):
             raise ValueError('Supported models: OBJ, FBX, GLTF/GLB, BLEND.')
     token = uuid.uuid4().hex
     env = dict(os.environ, PYTHONUTF8='1', DISABLE_TELEMETRY='true')
+    env['WT_CAMO_BLENDER_DATA']=str(connection.DATA)
     for key, part in [('BLENDER_USER_CONFIG', 'config'), ('BLENDER_USER_SCRIPTS', 'scripts'),
                       ('BLENDER_USER_EXTENSIONS', 'extensions'), ('BLENDER_USER_DATAFILES', 'datafiles')]:
         path = connection.DATA / part
@@ -148,7 +153,7 @@ def start(blender=None, model=None):
     if model:
         command.extend(['--model', model])
     with (connection.DATA / 'host.out.log').open('w', encoding='utf-8') as stdout, (connection.DATA / 'host.err.log').open('w', encoding='utf-8') as stderr:
-        process = subprocess.Popen(command, cwd=REPO, env=env, stdout=stdout, stderr=stderr,
+        process = external_popen(command, cwd=REPO, env=env, stdout=stdout, stderr=stderr,
                                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
     write_json(connection.DATA / 'session.json', {'pid': process.pid, 'token': token, 'port': config['port'], 'repo': str(REPO)})
     deadline = time.monotonic() + 55

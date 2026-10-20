@@ -1,5 +1,7 @@
 # 部署、迁移与开发
 
+可直接使用内置 Python 的 [Windows 桌面应用](desktop.zh-CN.md)，或按下文启动源码版。两种界面均支持中英文选择。
+
 ## 初次部署与配置
 
 Windows 10/11，PowerShell 5.1/7，Python 3.11–3.13。安装并登录 Codex CLI 后运行 start.cmd。本工具不安装 CLI 或修改其登录，不要求额外 API Key。首次离线部署需自行准备 requirements 对应 wheel。
