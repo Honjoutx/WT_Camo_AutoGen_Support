@@ -6,6 +6,7 @@ from PIL import Image,ImageDraw,ImageFilter
 from project import read,write_json,sha
 from surface_relief import uv_metrics,relief_normal,combine_normals
 from normal_finish import domain_config
+from export_runtime import ArrayCache,save_png,save_mapping,ordered_map,capacity
 
 def sample(image,u,v):
  h,w=image.shape[:2];x=np.clip(u*(w-1),0,w-1);y=np.clip((1-v)*(h-1),0,h-1);xi=x.astype(np.int32);yi=y.astype(np.int32);xf=(x-xi)[:,None];yf=(y-yi)[:,None];xj=np.minimum(xi+1,w-1);yj=np.minimum(yi+1,h-1)
@@ -31,7 +32,11 @@ def bake(project,planes,out,size,update=None):
  domain_filters.update({key+'::coordinated-gradient':json.dumps(meta['coordinated_gradient']['world_y_interval'])+'-v1' for key,meta in native['regions'].items() if meta.get('coordinated_gradient')})
  cache_signature=hashlib.sha256((capture['model_sha256']+sha(project.surface_root/project.contract['capture_bindings'])+str(size)+json.dumps(keys)+json.dumps(domain_filters,sort_keys=True)+str([planes[k].get('has_art',True) for k in keys])+('surface-bake-v4-material-face-domains' if relief else 'surface-bake-v4-material-face-domains-flat')).encode()).hexdigest()[:20]
  cache=project.root/'cache/surface-native-mapping'/cache_signature;cache.mkdir(parents=True,exist_ok=True)
- source_mats=list(repair['materials']);rows={};audit={};loaded={}
+ source_mats=list(repair['materials']);rows={};audit={}
+ domains=list(native['regions'].items());workers,budget=capacity()
+ worst=max([max(size,int(m.get('minimum_export_size',0)))**2*(160 if relief else 48) for _,m in domains],default=0)
+ slots=min(workers,len(domains),max(1,budget//max(1,worst)))
+ loaded=ArrayCache(worst*slots)
  guard=project.contract.get('native_uv_guard');reference=None;protected_faces=None
  if guard:
   reference_path=project.root/guard['reference_manifest'];reference=read(reference_path);reference_root=reference_path.parent
@@ -39,20 +44,26 @@ def bake(project,planes,out,size,update=None):
   protected_faces=np.load(project.surface_root/guard['protected_faces'])
  if relief:metrics,valid_faces=uv_metrics(binding)
  def plane(k):
-  if k in loaded:return loaded[k]
-  row=planes[k];a=np.asarray(Image.open(out/row['color']).convert('RGBA'));m=np.asarray(Image.open(out/row['metallic']).convert('L'));r=np.asarray(Image.open(out/row['roughness']).convert('L'));assert a.shape[:2]==m.shape==r.shape
-  loaded.clear();channels=[a,m,r]
-  if relief:channels.append(np.asarray(Image.open(out/row['relief_mm']).convert('L')))
-  loaded[k]=np.dstack(channels);return loaded[k]
+  row=planes[k]
+  def decode():
+   with Image.open(out/row['color']) as image:a=np.asarray(image.convert('RGBA'))
+   with Image.open(out/row['metallic']) as image:m=np.asarray(image.convert('L'))
+   with Image.open(out/row['roughness']) as image:r=np.asarray(image.convert('L'))
+   assert a.shape[:2]==m.shape==r.shape;channels=[a,m,r]
+   if relief:
+    with Image.open(out/row['relief_mm']) as image:channels.append(np.asarray(image.convert('L')))
+   return np.dstack(channels)
+  return loaded.get(k,decode,int(np.prod(row['pixels']))*(7 if relief else 6))
  requested_size=size
- for j,(key,meta) in enumerate(native['regions'].items()):
+ def bake_domain(item):
+  j,(key,meta)=item
+  rows={};audit={}
   gradient=meta.get('coordinated_gradient');need_face=relief or bool(gradient)
   size=max(requested_size,int(meta.get('minimum_export_size',0)))
-  if update:update('映射原 UV · '+meta['name'],45+int(j/len(native['regions'])*35))
   if meta.get('native_uv_board'):
    from shared_uv_bake import bake_shared
-   rows[key],audit[key]=bake_shared(project,key,meta,planes,out,size,binding,repair)
-   continue
+   row,proof=bake_shared(project,key,meta,planes,out,size,binding,repair)
+   return key,row,proof
   saved=cache/(key+(('-'+str(size)) if size!=requested_size else '')+'.npz');ids=np.flatnonzero(np.isin(binding['material_index'],[i for i,mid in enumerate(source_mats) if repair['materials'][mid].get('map_Kd')==meta['color_map']])&(binding['owner']>=0)&binding['paint']);mask=np.asarray(Image.open(project.root/meta['mask']).resize((size,size),Image.Resampling.NEAREST))>0
   domain_faces=None
   if meta.get('source_face_ids'):
@@ -75,7 +86,7 @@ def bake(project,planes,out,size,update=None):
     (ax,ay),(bx,by),(cx,cy)=points;den=(by-cy)*(ax-cx)+(cx-bx)*(ay-cy)
     if abs(den)<1e-8:return
     for y0 in range(ymin,ymax,128):
-     y1=min(ymax,y0+128);xx,yy=np.meshgrid(np.arange(xmin,xmax,dtype=np.float32)+.5,np.arange(y0,y1,dtype=np.float32)+.5);wa=((by-cy)*(xx-cx)+(cx-bx)*(yy-cy))/den;wb=((cy-ay)*(xx-cx)+(ax-cx)*(yy-cy))/den;wc=1-wa-wb;ok=(wa>=-1e-6)&(wb>=-1e-6)&(wc>=-1e-6)&mask[y0:y1,xmin:xmax]
+     y1=min(ymax,y0+128);xx=(np.arange(xmin,xmax,dtype=np.float32)+.5)[None,:];yy=(np.arange(y0,y1,dtype=np.float32)+.5)[:,None];wa=((by-cy)*(xx-cx)+(cx-bx)*(yy-cy))/den;wb=((cy-ay)*(xx-cx)+(ax-cx)*(yy-cy))/den;wc=1-wa-wb;ok=(wa>=-1e-6)&(wb>=-1e-6)&(wc>=-1e-6)&mask[y0:y1,xmin:xmax]
      if not ok.any():continue
      coordinates=art_uv[fi]
      if gradient:
@@ -101,7 +112,7 @@ def bake(project,planes,out,size,update=None):
      map_kind[ok]=neighbor[ok];map_u[ok]=np.roll(map_u,(dy,dx),(0,1))[ok];map_v[ok]=np.roll(map_v,(dy,dx),(0,1))[ok]
      if need_face:map_face[ok]=np.roll(map_face,(dy,dx),(0,1))[ok]
      missing[ok]=False
-   np.savez_compressed(saved,u=map_u,v=map_v,kind=map_kind,**({'face':map_face} if need_face else {}));cache_hit=False
+   save_mapping(saved,u=map_u,v=map_v,kind=map_kind,**({'face':map_face} if need_face else {}));cache_hit=False
   original=np.asarray(Image.open(model.parent/'textures'/meta['texture_name']).convert('RGB').resize((size,size),Image.Resampling.LANCZOS));color=original.copy();metal=np.zeros((size,size),np.uint8);rough=np.full((size,size),153,np.uint8);painted=0
   preserve=None;preserved_pixels=0
   if guard:
@@ -150,7 +161,7 @@ def bake(project,planes,out,size,update=None):
     with Image.open(project.root/reference_path) as image:
      target[:]=np.asarray(image.convert('L').resize((size,size),Image.Resampling.LANCZOS))
   assert np.array_equal(color[~mask],original[~mask]),key
-  cp=out/'textures'/f'{key}-basecolor.png';mp=out/'materials'/f'{key}-metallic.png';rp=out/'materials'/f'{key}-roughness.png';Image.fromarray(color).save(cp);Image.fromarray(metal).save(mp);Image.fromarray(rough).save(rp)
+  cp=out/'textures'/f'{key}-basecolor.png';mp=out/'materials'/f'{key}-metallic.png';rp=out/'materials'/f'{key}-roughness.png';save_png(Image.fromarray(color),cp);save_png(Image.fromarray(metal),mp);save_png(Image.fromarray(rough),rp)
   rows[key]=dict(color=cp.relative_to(out).as_posix(),metallic=mp.relative_to(out).as_posix(),roughness=rp.relative_to(out).as_posix(),normal=None,original_texture=meta['texture_name'],size=size,sha256=sha(cp),compatibility_only=bool(meta.get('compatibility_only')),source_face_ids=meta.get('source_face_ids'));audit[key]=dict(protected_pixels_exact=True,source_faces=len(ids),registered_native_pixels=int(((map_face>=0) if gradient else (map_kind!=255)).sum()),artwork_pixels=painted,cache_hit=cache_hit,overlap_policy='Stable original face order within material face domain; mirrored/shared pixels inside a domain necessarily share output',repeating_uv_spans_preserved=True)
   if gradient:audit[key]['coordinated_physical_y_gradient']=gradient
   if guard:audit[key].update(deferred_uv_guard=True,deferred_pixels_preserved=preserved_pixels,deferred_reference_manifest=guard['reference_manifest'])
@@ -158,8 +169,15 @@ def bake(project,planes,out,size,update=None):
    normal_name=next((r.get('map_normal') for r in repair['materials'].values() if r.get('map_Kd')==meta['color_map'] and r.get('map_normal')),None);normal_path=model.parent/'textures'/Path(normal_name).name if normal_name else None
    original_normal=np.asarray(Image.open(normal_path).convert('RGB').resize((size,size),Image.Resampling.LANCZOS)) if normal_path and normal_path.exists() else np.broadcast_to(np.uint8([128,128,255]),(size,size,3)).copy();detail=relief_normal(height,map_face,map_kind,metrics,valid_faces);normal=combine_normals(original_normal,detail,mask,project.contract['relief_material'].get('original_normal_strength',1),domain_config(project,key,meta));assert np.array_equal(normal[~mask],original_normal[~mask]),key
    if preserved_pixels:normal[preserve]=previous('normal','RGB')[preserve]
-   npth=out/'materials'/f'{key}-normal.png';hp=out/'materials'/f'{key}-height-mm.png';sp=out/'materials'/f'{key}-smoothness.png';Image.fromarray(normal).save(npth);Image.fromarray(np.uint16(np.rint(height*65535))).save(hp);Image.fromarray(255-rough).save(sp);rows[key].update(normal=npth.relative_to(out).as_posix(),height=hp.relative_to(out).as_posix(),smoothness=sp.relative_to(out).as_posix(),height_encoding='16-bit linear; 0 = 0 mm, 65535 = 1 mm',normal_convention='OpenGL +Y, source UV physical metric',original_normal=Path(normal_name).name if normal_name else None);audit[key].update(protected_normal_pixels_exact=True,relief_max_mm=float(height.max()),source_uv_metric_used=True);del height,detail,normal,original_normal,map_face
+   npth=out/'materials'/f'{key}-normal.png';hp=out/'materials'/f'{key}-height-mm.png';sp=out/'materials'/f'{key}-smoothness.png';save_png(Image.fromarray(normal),npth);save_png(Image.fromarray(np.uint16(np.rint(height*65535))),hp);save_png(Image.fromarray(255-rough),sp);rows[key].update(normal=npth.relative_to(out).as_posix(),height=hp.relative_to(out).as_posix(),smoothness=sp.relative_to(out).as_posix(),height_encoding='16-bit linear; 0 = 0 mm, 65535 = 1 mm',normal_convention='OpenGL +Y, source UV physical metric',original_normal=Path(normal_name).name if normal_name else None);audit[key].update(protected_normal_pixels_exact=True,relief_max_mm=float(height.max()),source_uv_metric_used=True);del height,detail,normal,original_normal,map_face
   elif need_face:del map_face
   del original,color,metal,rough,map_u,map_v,map_kind,mask
+  return key,rows[key],audit[key]
+ completed=[0]
+ def finished(slot,item,result):
+  completed[0]+=1
+  if update:update('映射原 UV · '+item[1][1]['name'],45+int(completed[0]/max(1,len(domains))*35))
+ results=ordered_map(bake_domain,list(enumerate(domains)),estimate=lambda item:max(requested_size,int(item[1][1].get('minimum_export_size',0)))**2*(160 if relief else 48),stage_name='native_domains',on_done=finished)
+ for key,row,proof in results:rows[key]=row;audit[key]=proof
  write_json(out/'evidence/surface-bake-audit.json',audit)
  return rows

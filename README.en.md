@@ -57,3 +57,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-desktop.ps1
 The build produces a Windows application folder, ZIP and SHA-256 file under `dist/`. It excludes user workspaces, local settings, models and artwork. A tiny synthetic workspace is used for packaged-app tests.
 
 See the [desktop deployment guide](docs/desktop.zh-CN.md), the English workflow guide inside the app, and the repository's [wt-camo-workflow skill](.agents/skills/wt-camo-workflow/SKILL.md). A local CLI does not inherit ImageGen or Photoshop MCP from another chat application; configure those capabilities separately.
+
+
+## Export performance
+
+The generation bar defaults to **Full speed**, with Balanced and serial Compatibility modes. Independent planes, native UV domains and original-atlas merges are scheduled against available logical CPUs and live free RAM, reserving roughly 2.5% of physical RAM (at least 256 MiB). There is no fixed thread-count cap; a single oversized task still requires its own working set to fit physical memory.
+
+Fast PNG/NPZ writing reduces lossless compression effort, preserving pixels, bit depth, resolution and original UVs; files may be larger. Decoded planes use a memory-bounded cache. Shared-texel priorities, original face order and shared-normal grouping remain deterministic. Selecting individual output files prunes unrelated UV domains and unselected final channel merges while retaining PBR ownership dependencies.
+
+The optional GPU path accelerates relief normals, normal composition and grain smoothing, not PNG compression. Its pool/tile size follows free VRAM at initialization rather than a fixed 4 GiB cap. Device operations share a serialized cache while CPU work continues across other domains. Missing CUDA/CuPy or device failures are reported with CPU fallback. The desktop package does not bundle the large CUDA runtime.
+
+Each job writes resource budgets, stage timings, peak concurrency and cache counters to `evidence/export-performance.json`; GPU details remain in `export-acceleration.json`. Performance mode does not change the output naming or file-selection contract.

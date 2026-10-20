@@ -3,6 +3,7 @@ import copy,json
 from pathlib import Path
 import numpy as np
 from PIL import Image
+from export_runtime import save_png
 from project import read,write_json,sha
 
 def bake_authorities(project,planes,out,size,update,bake):
@@ -36,7 +37,7 @@ def bake_authorities(project,planes,out,size,update,bake):
                 with Image.open(path) as image:mode=image.mode;pixels=np.asarray(image).copy()
                 with Image.open(project.root/reference) as image:prior=np.asarray(image.convert(mode).resize((row['size'],row['size']),Image.Resampling.LANCZOS))
                 channel_mask=material_mask if channel in ['metallic','roughness','smoothness'] else mask
-                pixels[~channel_mask]=prior[~channel_mask];Image.fromarray(pixels).save(path)
+                pixels[~channel_mask]=prior[~channel_mask];save_png(Image.fromarray(pixels),path)
             row['sha256']=sha(out/row['color'])
             for domain,config in members.items():
                 rows[domain]={**row,'source_face_ids':config.get('source_face_ids'),'atlas_authority':name}

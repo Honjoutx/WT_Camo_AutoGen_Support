@@ -41,6 +41,16 @@ def differs(path, source=None, default=None):
     return False
 
 
+def image_differs(actual,baseline=None,default=None):
+    """Same exact comparison on decoded pixels, before writing a new PNG."""
+    if baseline is None and default is None:raise ValueError('Missing image baseline')
+    for y in range(0,actual.height,256):
+        box=(0,y,actual.width,min(y+256,actual.height))
+        expected=np.asarray(baseline.crop(box)) if baseline is not None else default
+        if np.any(np.asarray(actual.crop(box))!=expected):return True
+    return False
+
+
 def native_images(project, rows, out):
     """Select actually used domains and channels; retain existing PNG payloads."""
     out = Path(out)

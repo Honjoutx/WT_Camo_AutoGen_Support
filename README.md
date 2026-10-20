@@ -57,6 +57,17 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop-workbench.ps1
 
 参见 [部署说明](docs/deployment.zh-CN.md)、[设计执行规范](tools/livery-layout-editor/docs/workflow-guide.zh-CN.txt) 与 [模型绑定契约](.agents/skills/wt-camo-workflow/references/project-contract.md)。
 
+
+## 导出性能
+
+生成栏默认选择“全速 · 尽用可用资源”，也可切换均衡或串行兼容模式。全速模式按可用逻辑 CPU 和实时空闲内存安排独立平面、UV 域与原图集合并任务；保留约 2.5% 物理内存（至少 256 MiB）作为调度余量，不设固定线程数上限。单个超大任务仍受自身工作集和物理内存约束，不保证任意分辨率都能执行。
+
+快写 PNG/映射缓存降低的是无损压缩计算量，不改变像素、位深、分辨率或原 UV，文件可能稍大。平面解码按剩余内存缓存；共用 UV 的优先级、原面覆盖顺序与共用法线归并保持一致。勾选部分文件时，会提前跳过无关 UV 域和未选通道的最终合并；依赖的完整 PBR 所有权仍保留。
+
+GPU 选项继续负责浮雕法线、法线合成和颗粒平滑，不负责 PNG 压缩。显存池与分块根据启动时的空闲显存计算，不再固定限制为 4 GiB；设备运算串行共享缓存，同时 CPU 处理其他域。缺少 CuPy/CUDA 或设备失败时报告并回退 CPU。独立应用没有捆绑体积较大的 CUDA 运行库。
+
+每次任务的 `evidence/export-performance.json` 记录资源预算、阶段耗时、并发峰值和缓存命中，GPU 另见 `export-acceleration.json`。选择不同模式不改变贴图清单与命名规则。
+
 ## 配置与诊断
 
 需要指定外部工作区、Codex、Blender 或字体时，复制 `config/runtime.example.json` 为 **`config/runtime.local.json`** 后修改。后者已被 Git 忽略。环境变量也可覆盖：

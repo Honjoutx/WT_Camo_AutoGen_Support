@@ -1,6 +1,6 @@
 """Optional, job-local CUDA normal processing; CPU remains the default."""
 from pathlib import Path
-import functools,json,os,subprocess,sys,time
+import functools,json,os,subprocess,sys,time,threading
 import numpy as np
 
 from runtime import ROOT
@@ -10,6 +10,7 @@ _output=None
 _on_change=None
 _report={'requested':'cpu','actual':'cpu','operations':{},'fallbacks':[]}
 _dll_handles=[]
+_backend_lock=threading.RLock()
 
 
 def validate(value):
@@ -68,6 +69,12 @@ def configure(mode='cpu',output=None,on_change=None):
 
 
 def accelerate(operation,*args):
+ # Independent UV domains share one CUDA backend/cache. Serialize its device
+ # operations while CPU rasterization, decoding and PNG writes run in parallel.
+ with _backend_lock:return _accelerate(operation,*args)
+
+
+def _accelerate(operation,*args):
  global _backend
  if _backend is None:return None
  started=time.perf_counter()
@@ -111,10 +118,10 @@ class CudaNormals:
   if cp.cuda.runtime.getDeviceCount()<1:raise RuntimeError('没有可用的 CUDA 显卡')
   properties=cp.cuda.runtime.getDeviceProperties(cp.cuda.runtime.getDevice())
   name=properties['name'];self.device=name.decode('utf8') if isinstance(name,bytes) else str(name)
-  free,_=cp.cuda.runtime.memGetInfo();self.pool_limit=min(4*1024**3,int(free*.7))
+  free,total=cp.cuda.runtime.memGetInfo();reserve=max(256*1024**2,int(total*.05));self.pool_limit=max(0,free-reserve)
   if self.pool_limit<256*1024**2:raise RuntimeError('可用显存不足 256 MB')
   cp.get_default_memory_pool().set_limit(size=self.pool_limit)
-  self.tile=1024 if self.pool_limit>=1024**3 else 512
+  self.tile=max(256,2**int(np.floor(np.log2(max(256,np.sqrt(self.pool_limit/320))))))
   self._metrics_ref=None;self._metrics=None;self._valid=None
   # Validate NVRTC, device kernels and the exact-distance-transform dependency.
   from cupyx.scipy.ndimage import distance_transform_edt,gaussian_filter

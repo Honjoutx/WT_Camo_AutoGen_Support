@@ -71,13 +71,15 @@ def main():
         assert api(url,'/api/studio/preferences')['language']=='en'
         assert 'Design sketch' in api(url,'/api/workflow?language=en')['stages'][2]['title']
         project=api(url,'/api/project')
-        job=api(url,'/api/jobs?project='+project['id'],{'mode':'boards','region':project['state']['active_region'],'state':project['state'],'storage_mode':'compact'})
+        job=api(url,'/api/jobs?project='+project['id'],{'mode':'boards','region':project['state']['active_region'],'state':project['state'],'storage_mode':'compact','export_performance':'max'})
         deadline=time.monotonic()+60
         while time.monotonic()<deadline:
             job=api(url,'/api/jobs/'+job['id']+'?project='+project['id'])
             if job['status'] in ('complete','failed'):break
             time.sleep(.3)
-        assert job['status']=='complete',job
+        assert job['status']=='complete' and job['export_performance']=='max',job
+        perf=json.loads((Path(job['output_dir'])/'evidence/export-performance.json').read_text(encoding='utf-8'))
+        assert perf['mode']=='max' and perf['resources']['logical_cpus']>0,perf
         with urllib.request.urlopen(url+job['files'][0]['url'],timeout=15) as response:
             assert response.read(4)==b'PK\x03\x04'
         result['worker_export']={'status':job['status'],'files':len(job['files']),'zip_download':True}

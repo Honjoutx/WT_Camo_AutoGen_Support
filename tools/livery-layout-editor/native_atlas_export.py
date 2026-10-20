@@ -9,8 +9,9 @@ from pathlib import Path
 import json, re
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
-from texture_bundle import CHANNELS, DEFAULTS, SUFFIXES, differs, read
+from texture_bundle import CHANNELS, DEFAULTS, SUFFIXES, differs, image_differs, read
 from export_naming import export_filename, filename_map
+from export_runtime import ordered_map,save_png,count as performance_count
 
 CHANNEL_PRESETS = {'color': ('color',), 'color-normal': ('color', 'normal'),
                    'pbr': CHANNELS}
@@ -146,7 +147,8 @@ def export_name_map(groups, repair, originals):
     return filename_map(sources)
 
 
-def merge_group(project, out, name, domains, bindings, repair, originals, size, channels, filenames=None):
+def merge_group(project, out, name, domains, bindings, repair, originals, size, channels, filenames=None, ownership_channels=None):
+    ownership_channels=channels if ownership_channels is None else ownership_channels
     original_color = originals / name
     if not original_color.is_file():
         raise FileNotFoundError(original_color)
@@ -169,13 +171,13 @@ def merge_group(project, out, name, domains, bindings, repair, originals, size, 
         material_delta = np.zeros((size, size), dtype=np.bool_)
         # Color-only export needs no scalar decoding. PBR ownership also claims
         # material-only edits, then uses that one ownership map for all channels.
-        material_channels = ('metallic', 'roughness', 'smoothness', 'height') if channels != ('color',) else ()
+        material_channels = ('metallic', 'roughness', 'smoothness', 'height') if ownership_channels != ('color',) else ()
         for ch in material_channels:
             if row.get(ch):
                 scalar = resized(Path(out) / row[ch], size, 'I;16' if ch == 'height' else 'L')
                 material_delta |= np.asarray(scalar) != DEFAULTS[ch]
                 del scalar
-        if 'normal' in channels and row.get('normal'):
+        if 'normal' in ownership_channels and row.get('normal'):
             normal_baseline_path = normal_source(row['original_texture'], [domains[index]], repair, originals)
             baseline_key=str(normal_baseline_path) if normal_baseline_path else None
             if baseline_key not in normal_baselines:
@@ -251,19 +253,21 @@ def merge_group(project, out, name, domains, bindings, repair, originals, size, 
         filename = filenames[raw_name, ch] if filenames is not None else export_filename(raw_name, ch)
         path = Path(out) / 'export' / filename
         path.parent.mkdir(parents=True, exist_ok=True)
+        changed=image_differs(result,base if source else None,DEFAULTS.get(ch))
         if path.exists():
             # Multiple original colors can share a normal; never silently replace
             # a second normal with different content under one original name.
             prior = resized(path, size, mode)
             if np.any(np.asarray(prior) != np.asarray(result)):
                 raise ValueError('Conflicting merged channels share one original filename: ' + str(path.name))
-        else:
-            result.save(path)
-        if differs(path, source=source, default=DEFAULTS.get(ch)):
+        elif changed:
+            save_png(result,path)
+        if changed:
             files.append(path)
             exported.append(ch)
         else:
-            path.unlink()
+            path.unlink(missing_ok=True)
+            performance_count('unchanged_png_writes_skipped')
     return files, {'source_color': name, 'domains': len(domains), 'resolution': size,
                    'channels': exported, 'shared_uv_conflict_pixels': int(conflicts.sum()),
                    'edited_uv_pixels': int(coverage.sum()), 'protected_shared_pixels_restored': protected_pixels,
@@ -271,40 +275,47 @@ def merge_group(project, out, name, domains, bindings, repair, originals, size, 
                    'shared_uv_policy': 'Main structure first; one common artwork per original shared texel'}
 
 
-def original_atlas_images(project, rows, out, preset='color', size=None, update=None):
+def original_atlas_images(project, rows, out, preset='color', size=None, update=None, selection=None, filenames_override=None, total_atlases=None):
     if preset not in CHANNEL_PRESETS:
         raise ValueError('Unknown export channel preset')
     model, repair, bindings, groups = plan(project, rows)
-    filenames = export_name_map(groups, repair, model.parent / 'textures')
+    filenames = filenames_override or export_name_map(groups, repair, model.parent / 'textures')
     audit = {'policy': 'One merged image per modified original atlas/channel, native UV unchanged',
-             'channel_preset': preset, 'original_color_atlas_count': len(groups), 'atlases': {},
+             'channel_preset': preset, 'original_color_atlas_count': total_atlases if total_atlases is not None else len(groups), 'atlases': {},
              'file_aliases': {Path(raw).stem + '_' + SUFFIXES[ch] + '.png': filename
                               for (raw, ch), filename in filenames.items()}}
-    files = []
-    channels = tuple(ch for ch in CHANNEL_PRESETS[preset] if ch != 'normal')
-    normals = defaultdict(list)
-    for i, (name, domains) in enumerate(groups.items()):
-        if update:
-            update('合并原始图集 · ' + name, 84 + int(i / max(1, len(groups)) * 13))
-        target_size = size or max(row['size'] for _, row, _, _ in domains)
-        selected, result = merge_group(project, out, name, domains, bindings, repair,
-                                       model.parent / 'textures', target_size, channels, filenames)
-        files.extend(selected)
-        audit['atlases'][name] = result
+    wanted=None
+    if selection is not None:
+        from export_naming import normalize_export_filename
+        wanted={audit['file_aliases'].get(name,normalize_export_filename(name)) for name in selection}
+    base_channels=tuple(ch for ch in CHANNEL_PRESETS[preset] if ch!='normal')
+    normals=defaultdict(list);tasks=[]
+    for name,domains in groups.items():
+        channels=tuple(ch for ch in base_channels if wanted is None or filenames[name,ch] in wanted)
+        if channels:
+            tasks.append(('color',name,domains,size or max(row['size'] for _,row,_,_ in domains),channels,base_channels))
         if 'normal' in CHANNEL_PRESETS[preset]:
-            source = normal_source(name, domains, repair, model.parent / 'textures')
-            normal_key = source.name if source else name + '-normal'
-            normals[normal_key].extend(domains)
-    # Several camo color variants share ONE original normal-map filename.
-    # Merge those domains together before writing that normal, rather than
-    # inventing one new normal for each color variant or overwriting duplicates.
-    audit['normal_atlases'] = {}
-    for normal_key, domains in sorted(normals.items()):
-        domains.sort(key=lambda domain: (-priority(domain[0], domain[2]), domain[0]))
-        target_size = size or max(row['size'] for _, row, _, _ in domains)
-        selected, result = merge_group(project, out, domains[0][1]['original_texture'], domains,
-                                       bindings, repair, model.parent / 'textures', target_size, ('normal',), filenames)
+            source=normal_source(name,domains,repair,model.parent/'textures')
+            normal_key=source.name if source else name+'-normal'
+            raw=source.name if source else name
+            if wanted is None or filenames[raw,'normal'] in wanted:normals[normal_key].extend(domains)
+    for normal_key,domains in sorted(normals.items()):
+        domains.sort(key=lambda domain:(-priority(domain[0],domain[2]),domain[0]))
+        tasks.append(('normal',normal_key,domains,size or max(row['size'] for _,row,_,_ in domains),('normal',),('normal',)))
+    def execute(task):
+        kind,name,domains,target_size,channels,ownership=task
+        source_name=name if kind=='color' else domains[0][1]['original_texture']
+        return merge_group(project,out,source_name,domains,bindings,repair,model.parent/'textures',target_size,channels,filenames,ownership)
+    completed=[0]
+    def finished(index,task,result):
+        completed[0]+=1
+        if update:update('合并原始图集 · '+task[1],84+int(completed[0]/max(1,len(tasks))*13))
+    results=ordered_map(execute,tasks,estimate=lambda task:task[3]**2*48,
+                        stage_name='original_atlas_merge',on_done=finished)
+    files=[];audit['normal_atlases']={}
+    for task,(selected,result) in zip(tasks,results):
         files.extend(selected)
-        audit['normal_atlases'][normal_key] = result
-    audit['shared_uv_conflict_pixels'] = sum(row['shared_uv_conflict_pixels'] for row in audit['atlases'].values())
-    return files, audit
+        audit['atlases' if task[0]=='color' else 'normal_atlases'][task[1]]=result
+    audit['selected_merge_tasks']=len(tasks)
+    audit['shared_uv_conflict_pixels']=sum(row['shared_uv_conflict_pixels'] for row in audit['atlases'].values())
+    return files,audit

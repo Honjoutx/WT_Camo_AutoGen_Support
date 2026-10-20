@@ -4,6 +4,7 @@ import argparse,os,traceback
 from project import read,write_json
 from projects import ProjectManager
 from raster import svg_png
+from export_runtime import configure as configure_performance,flush
 from storage import register_archive,compact_job
 
 if __name__=='__main__':
@@ -11,6 +12,7 @@ if __name__=='__main__':
  folder=Path(args.job).resolve();job=read(folder/'job.json')
  def update(**values):job.update(values);write_json(folder/'job.json',job)
  try:
+  configure_performance(job.get('export_performance','max'),folder)
   p=ProjectManager().get(snapshot=read(folder/'project-config.json'));state=p.validate(read(folder/'layout.json'))
   if job['mode']!='boards':raise ValueError('未绑定模型的草图仅支持平面输出。')
   update(status='running',pid=os.getpid(),stage='导出分区草图',progress=5)
@@ -27,3 +29,5 @@ if __name__=='__main__':
    previews=[dict(label=p.regions[job['region']]['name'],url=f'/job/{job["id"]}/planes/{job["region"]}.png')])
  except Exception as e:
   traceback.print_exc();update(status='failed',stage='草图导出失败',error=str(e))
+
+ finally:flush()

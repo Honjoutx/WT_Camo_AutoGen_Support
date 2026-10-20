@@ -12,6 +12,7 @@ from projects import ProjectManager,scoped
 from assets import UPLOAD_LIMIT
 from export_selection import catalogue,validate_selection
 from export_acceleration import validate as validate_acceleration,availability as acceleration_availability
+from export_runtime import validate as validate_performance,resources as export_resources
 from storage import validate_mode,save_layout,archive_recipe,archive_entries,stream_archive
 from live_projects import save_conflict,state_revision
 from PIL import Image
@@ -89,9 +90,10 @@ class Handler(BaseHTTPRequestHandler):
    path=unquote(urlparse(self.path).path)
    if STUDIO.get(self,path):return
    if path in ['/studio.js','/studio.css','/storage-ui.js','/live-refresh.js','/i18n.js','/locales/en.js','/settings-ui.js']:return self.file(HERE/'web'/path[1:])
-   if path in ['/','/index.html','/app.js','/style.css','/fonts.css','/extras.css','/transform.js','/shadow.js','/export-files.js','/export-gpu.js']:return self.file(HERE/'web'/('index.html' if path=='/' else path[1:]))
+   if path in ['/','/index.html','/app.js','/style.css','/fonts.css','/extras.css','/transform.js','/shadow.js','/export-files.js','/export-gpu.js','/export-performance.js']:return self.file(HERE/'web'/('index.html' if path=='/' else path[1:]))
    if path=='/api/projects':return self.respond(MANAGER.listing())
    if path=='/api/project':return self.respond(STUDIO.live.payload(parse_qs(urlparse(self.path).query).get('project',[MANAGER.registry['active_project']])[0]))
+   if path=='/api/export-performance':return self.respond(export_resources())
    if path=='/api/export-acceleration':return self.respond(acceleration_availability())
    p=self.project(metadata_only=path=='/api/jobs' or path.startswith(('/api/jobs/','/job/')))
    if path=='/api/project':return self.respond(MANAGER.payload(p))
@@ -188,6 +190,7 @@ class Handler(BaseHTTPRequestHandler):
     if mode not in ['boards','preview','4k','8k'] or region not in p.regions:raise ValueError('生成选项无效。')
     if p.config['type']=='boards' and mode!='boards':raise ValueError('草图项目只支持平面输出。请先建立模型绑定项目。')
     if preset not in ['color','color-normal','pbr']:raise ValueError('贴图通道选项无效。')
+    performance=validate_performance(data.get('export_performance','max'))
     acceleration=validate_acceleration(data.get('export_acceleration','cpu'))
     storage_mode=validate_mode(data.get('storage_mode','compact'))
     if acceleration=='gpu' and (p.config['type']!='surface-planes' or mode=='boards'):raise ValueError('GPU 贴图加速适用于平面设计项目的模型预览或原 UV 图集导出。')
@@ -195,7 +198,7 @@ class Handler(BaseHTTPRequestHandler):
     with LOCK:
      if any(j['status'] in ['queued','running'] for c in MANAGER.registry['projects'] for j in job_list(MANAGER.job_context(c))):return self.respond({'error':'已有后台任务正在运行，切换项目不会影响它。'},409)
      ident='job-'+now()+'-'+uuid.uuid4().hex[:6];folder=p.jobs/ident;folder.mkdir();write_json(folder/'layout.json',state);write_json(folder/'project-config.json',p.config);write_json(p.state_dir/'current.json',state);(folder/'evidence').mkdir();shutil.copy2(p.state_dir/'render-settings.json',folder/'evidence/render-settings.json')
-     job=dict(id=ident,project_id=p.id,mode=mode,region=region,export_channels=preset,export_files=export_files,export_acceleration=acceleration,storage_mode=storage_mode,status='queued',progress=0,stage='准备生成',output_dir=str(folder),created=now(),files=[],previews=[],log=[]);write_json(folder/'job.json',job)
+     job=dict(id=ident,project_id=p.id,mode=mode,region=region,export_channels=preset,export_files=export_files,export_acceleration=acceleration,export_performance=performance,storage_mode=storage_mode,status='queued',progress=0,stage='准备生成',output_dir=str(folder),created=now(),files=[],previews=[],log=[]);write_json(folder/'job.json',job)
      script='boards_worker.py' if p.config['type']=='boards' else 'surface_worker.py' if p.config['type']=='surface-planes' else 'native_worker.py'
      with (folder/'worker.log').open('wb') as log:subprocess.Popen([sys.executable,str(HERE/script),'--job',str(folder)],cwd=str(ROOT),stdout=log,stderr=subprocess.STDOUT,creationflags=subprocess.CREATE_NO_WINDOW if sys.platform=='win32' else 0)
     return self.respond(display_job(p,job),202)

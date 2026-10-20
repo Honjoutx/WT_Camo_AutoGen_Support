@@ -11,7 +11,9 @@ from surface_bake import bake
 from incremental_native import unchanged_domains,link_copy,registered_domains
 from texture_bundle import FINAL_MODES,pack
 from native_atlas_export import original_atlas_images
-from export_selection import select_images
+from export_selection import select_images,selected_domains
+from export_runtime import configure as configure_performance,ordered_map,stage,flush
+from plane_render import render as render_plane
 from export_acceleration import configure as configure_acceleration,finalize as finalize_acceleration
 from game_atlas_manifest import write_manifest as write_game_atlas_manifest
 from project_dependencies import cache_inputs_exist
@@ -32,6 +34,7 @@ def raster(svg,width,out):
  out.write_bytes(svg_png(svg,width))
 try:
  prepare_job(O)
+ configure_performance(job.get('export_performance','max'),O)
  job.pop('error',None)
  configure_acceleration(job.get('export_acceleration','cpu'),O,acceleration_changed)
  if args.reuse_plane_job:
@@ -67,8 +70,9 @@ try:
    try:cached_finish=ProjectManager().get(snapshot=read(reuse_root/'project-config.json')).contract.get('automatic_material',{})
    except FileNotFoundError:
     print('旧平面缓存的版本配置已清理，将重新生成对应平面。',flush=True);cached_finish=None
+ plane_tasks=[]
  for i,(key,meta) in enumerate(p.regions.items()):
-  update('独立平面 · '+meta['name'],2+int(i/len(p.regions)*40));w,h=meta['viewbox'];width=round(size*min(1,w/h));height=round(width*h/w);svg=p.compose(state,key,for_export=True);(O/'surface-sources'/f'{key}.svg').write_text(svg,encoding='utf8');cp=O/'planes'/f'{key}-color.png';has_art=any(l['visible'] and l['opacity']>0 for l in state['regions'][key]['layers'][1:])
+  update('独立平面 · '+meta['name'],2+int(i/len(p.regions)*10));w,h=meta['viewbox'];width=round(size*min(1,w/h));height=round(width*h/w);svg=p.compose(state,key,for_export=True);(O/'surface-sources'/f'{key}.svg').write_text(svg,encoding='utf8');cp=O/'planes'/f'{key}-color.png';has_art=any(l['visible'] and l['opacity']>0 for l in state['regions'][key]['layers'][1:])
   prior=reuse.get('regions',{}).get(key) if reuse else None
   required=['color','metallic','roughness']+(['relief_mm'] if p.contract.get('relief_material',{}).get('enabled') else [])
   if prior and cached_finish==p.contract.get('automatic_material',{}) and prior['source_sha256']==meta['source_sha256'] and prior['pixels'][0]>=width and prior['pixels'][1]>=height and state['regions'][key]==reuse_state['regions'][key] and all(prior.get(ch) and (reuse_root/prior[ch]).is_file() for ch in required):
@@ -89,19 +93,16 @@ try:
    planes[key]=dict(color=cp.relative_to(O).as_posix(),**scalar,pixels=prior['pixels'],camera=meta['surface'],source_svg=f'surface-sources/{key}.svg',source_sha256=meta['source_sha256'],changed=p.changed(state,key),has_art=has_art,role='Approved unchanged physical-plane artwork reused at original resolution')
    reuse_audit[key]=dict(reused=True,reference=p.contract['reuse_surface_exports'],source_sha256_exact=True,layout_exact=True,pixels_exact=True,preview_regenerated=not cached_preview.is_file())
    continue
-  if has_art:raster(svg,width,cp)
-  else:Image.new('RGBA',(width,height)).save(cp)
-  color=Image.open(cp).convert('RGBA');rgb=np.asarray(color.convert('RGB'),np.float32)/255;foil=np.clip((rgb[:,:,0]-rgb[:,:,2]-.03)*5,0,1)
-  scalar={};finish=p.contract.get('automatic_material',{});base_m=finish.get('base_metallic',.06);foil_m=finish.get('foil_metallic',.72);base_r=finish.get('base_roughness',.40);foil_r=finish.get('foil_roughness',.26);channels=[('metallic',base_m+(foil_m-base_m)*foil),('roughness',base_r+(foil_r-base_r)*foil)]
-  if p.contract.get('relief_material',{}).get('enabled'):channels.append(('relief_mm',np.zeros_like(foil)))
-  for channel,automatic in channels:
-   mat_svg=compose_material(svg,state,key,channel,meta);target=O/'planes'/f'{key}-{channel}.png'
-   if mat_svg and has_art:
-    tmp=O/'planes'/f'{key}-{channel}-weights.png';raster(mat_svg,width,tmp);im=np.asarray(Image.open(tmp).convert('RGB'),np.float32)/255;value=np.clip(im[:,:,0]+automatic*(1-im[:,:,1]),0,1);tmp.unlink()
-   else:value=automatic
-   Image.fromarray(np.uint8(np.rint(value*255))).save(target);scalar[channel]=target.relative_to(O).as_posix()
-  thumb=color.copy();thumb.thumbnail((450,300));back=Image.new('RGB',thumb.size,'#183148');back.paste(thumb,mask=thumb.getchannel('A'));back.save(O/'previews'/f'{key}.jpg',quality=92)
-  planes[key]=dict(color=cp.relative_to(O).as_posix(),**scalar,pixels=list(color.size),camera=p.regions[key]['surface'],source_svg=f'surface-sources/{key}.svg',source_sha256=meta['source_sha256'],changed=p.changed(state,key),has_art=has_art,role='Independent actual module surface artwork; no UV atlas on the editing canvas')
+  channels=['metallic','roughness']+(['relief_mm'] if p.contract.get('relief_material',{}).get('enabled') else [])
+  metadata=dict(camera=meta['surface'],source_svg=f'surface-sources/{key}.svg',source_sha256=meta['source_sha256'],changed=p.changed(state,key),has_art=has_art,role='Independent actual module surface artwork; no UV atlas on the editing canvas')
+  plane_tasks.append(dict(key=key,out=str(O),pixels=[width,height],svg=svg,has_art=has_art,finish=p.contract.get('automatic_material',{}),materials={ch:compose_material(svg,state,key,ch,meta) for ch in channels},metadata=metadata))
+ plane_completed=[0]
+ def plane_done(slot,task,result):
+  plane_completed[0]+=1;update('独立平面完成 · '+p.regions[task['key']]['name'],12+int(plane_completed[0]/max(1,len(plane_tasks))*30))
+ rendered=ordered_map(render_plane,plane_tasks,estimate=lambda task:int(np.prod(task['pixels']))*96,stage_name='physical_planes',on_done=plane_done)
+ planes.update({task['key']:row for task,row in zip(plane_tasks,rendered)})
+ planes={key:planes[key] for key in p.regions}
+ selection=selected_domains(p,job.get('export_files'),job.get('export_channels','color')) if job['mode'] in FINAL_MODES else None
  write_json(O/'surface-manifest.json',dict(schema='physical-surface-export/v1',project_id=p.id,project_signature=p.signature,regions=planes,model_sha256=p.contract['model_sha256'],capture_bindings_sha256=sha(p.surface_root/p.contract['capture_bindings']),automatic_material=p.contract.get('automatic_material',{})))
  if reuse_path:write_json(O/'evidence/surface-reuse-audit.json',reuse_audit)
  if job['mode']!='boards':
@@ -109,7 +110,12 @@ try:
   if p.contract.get('bake_active_domains_only') and p.contract.get('preview_original_atlases'):
    p.native_contract['regions']=registered_domains(p)
    write_json(O/'evidence/active-domain-pruning.json',dict(policy='Same paintable-face ownership and compatibility exclusions as final original-atlas export',retained=list(p.native_contract['regions']),excluded=sorted(set(full_domains)-set(p.native_contract['regions']))))
-  reused,proof,reuse_root=unchanged_domains(p,state,size);domains=p.native_contract['regions'];p.native_contract['regions']={k:v for k,v in domains.items() if k not in reused};rows=bake(p,planes,O,size,update);p.native_contract['regions']=domains
+  if selection is not None:
+   p.native_contract['regions']={k:v for k,v in p.native_contract['regions'].items() if k in selection['keys']}
+   write_json(O/'evidence/selected-domain-pruning.json',dict(retained=list(p.native_contract['regions']),excluded=sorted(set(full_domains)-set(p.native_contract['regions'])),original_filename_collisions_preserved=True,all_shared_uv_contributors_preserved=True))
+  reused,proof,reuse_root=unchanged_domains(p,state,size);domains=p.native_contract['regions'];p.native_contract['regions']={k:v for k,v in domains.items() if k not in reused};
+  with stage('native_bake'):rows=bake(p,planes,O,size,update)
+  p.native_contract['regions']=domains
   for key,row in reused.items():
    for ch in ['color','metallic','roughness','smoothness','normal','height']:
     if row.get(ch):reuse_file(reuse_root/row[ch],O/row[ch],O)
@@ -125,7 +131,7 @@ try:
    if r.returncode:raise RuntimeError('原 UV 模型应用或 GPU 预览失败：pipeline.log')
    job['files'].append(link('Layout_Working.blend','当前平面布局 · 原 UV 模型'));job['previews'].append(link('previews/model.png','平面编辑结果 · GPU 模型预览'))
  if job['mode'] in FINAL_MODES:
-  preset=job.get('export_channels','color');images,audit=original_atlas_images(p,rows,O,preset,size,update);images=select_images(images,job.get('export_files'),O,audit)
+  preset=job.get('export_channels','color');images,audit=original_atlas_images(p,rows,O,preset,size,update,selection=job.get('export_files'),filenames_override=selection['filenames'] if selection else None,total_atlases=selection['total_atlases'] if selection else None);images=select_images(images,job.get('export_files'),O,audit)
   if p.contract.get('preview_original_atlases'):write_game_atlas_manifest(p,O,audit)
   bundle=pack(O,p.id+'-'+job['mode']+'-original-atlases.zip',images,audit);job['files']=[link(bundle.name,'原始图集贴图 · '+job['mode'].upper()+' PNG')];job['previews']=[]
   if audit['shared_uv_conflict_pixels']:job['warnings']=['存在共用 UV 的不同设计，导出按主体版面优先统一纹样；原 UV 保持不变。']
@@ -139,4 +145,4 @@ try:
  compact_job(O)
  update('生成完成 · 平面编辑与原 UV 导出已保存',100,status='complete')
 except Exception as e:traceback.print_exc();update('生成失败',job.get('progress',0),status='failed',error=str(e));sys.exit(1)
-finally:finalize_acceleration()
+finally:finalize_acceleration();flush()

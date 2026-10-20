@@ -31,6 +31,29 @@ def validate_selection(requested,available):
  if any(n not in allowed for n in clean):raise ValueError('勾选的贴图文件不属于当前项目或通道方案。')
  return sorted(set(clean))
 
+
+def selected_domains(project,requested,preset):
+ """Prune whole unrequested atlases, retaining every shared-texel contributor.
+
+ Compute names on the complete contract first: shortening filename collisions
+ must never depend on which images the user happened to select.
+ """
+ if requested is None:return None
+ contract=getattr(project,'native_contract',project.contract)
+ rows={k:dict(original_texture=m['texture_name'],original_normal=m.get('original_normal'),compatibility_only=m.get('compatibility_only',False)) for k,m in contract['regions'].items()}
+ model,repair,_,groups=plan(project,rows);originals=model.parent/'textures'
+ filenames=export_name_map(groups,repair,originals)
+ aliases={Path(raw).stem+'_'+SUFFIXES[ch]+'.png':filename for (raw,ch),filename in filenames.items()}
+ want={aliases.get(n,normalize_export_filename(n)) for n in requested};keys=set();authorities=set()
+ for name,domains in groups.items():
+  normal=normal_source(name,domains,repair,originals)
+  if not any(filenames[normal.name if ch=='normal' and normal else name,ch] in want for ch in CHANNEL_PRESETS[preset]):continue
+  for key,_,meta,_ in domains:
+   if meta.get('atlas_authority'):authorities.add(meta['atlas_authority'])
+   else:keys.add(key)
+ keys.update(k for k,m in contract['regions'].items() if m.get('atlas_authority') in authorities)
+ return dict(keys=keys,filenames=filenames,total_atlases=len(groups))
+
 def select_images(images,requested,out,audit=None):
  if requested is None:return images
  if not isinstance(requested,list) or not requested or any(not isinstance(n,str) or Path(n).name!=n or '/' in n or '\\' in n for n in requested):raise ValueError('贴图文件选择无效。')

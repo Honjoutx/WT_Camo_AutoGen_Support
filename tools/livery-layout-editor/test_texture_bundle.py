@@ -140,6 +140,42 @@ class TextureBundleTests(unittest.TestCase):
         with Image.open(self.out / 'export/normal_Normal.png') as image:
             self.assertEqual(image.getpixel((2, 2)), (200, 128, 240))
 
+    def test_selected_color_retains_pbr_material_only_ownership(self):
+        # Higher-priority material-only edits still win shared texels even when
+        # the user downloads color alone from the complete PBR preset.
+        main=self.domain('body-left');other=self.domain('components')
+        Image.new('L',(8,8),240).save(self.out/main['metallic'])
+        with Image.open(self.out/main['color']) as image:
+            image.putpixel((0,0),(90,100,110));image.save(self.out/main['color'])
+        Image.new('RGB',(8,8),(230,180,60)).save(self.out/other['color'])
+        _,full=original_atlas_images(self.p,self.rows,self.out,'pbr',size=8)
+        expected=np.asarray(Image.open(self.out/'export/base_Basecolor.png')).copy()
+        for path in (self.out/'export').iterdir():path.unlink()
+        files,selected=original_atlas_images(self.p,self.rows,self.out,'pbr',size=8,selection=['base_Basecolor.png'])
+        self.assertEqual([p.name for p in files],['base_Basecolor.png'])
+        self.assertTrue(np.array_equal(np.asarray(Image.open(files[0])),expected))
+        self.assertEqual(full['atlases']['base.png']['chosen_domain_pixels'],selected['atlases']['base.png']['chosen_domain_pixels'])
+
+    def test_selected_domains_preserve_short_name_collisions_and_shared_normals(self):
+        from export_selection import selected_domains
+        main=self.domain('body-left');other=self.domain('components')
+        plain,camo='tank_c.png','tank_c_us_camo_green.png'
+        repair={'materials':{}}
+        for key,row,name,color in [('body-left',main,camo,(10,20,30)),('components',other,plain,(40,50,60))]:
+            Image.new('RGB',(4,4),color).save(self.model/'textures'/name)
+            row['original_texture']=name
+            self.contract['regions'][key].update(texture_name=name,color_map='textures/'+name)
+            repair['materials'][key]={'map_Kd':'textures/'+name,'map_normal':'textures/normal.png'}
+            Image.new('RGB',(8,8),(100,120,140)).save(self.out/row['color'])
+        (self.model/'repair.json').write_text(json.dumps(repair))
+        selected=selected_domains(self.p,['tank_2_Basecolor.png'],'pbr')
+        self.assertEqual(selected['keys'],{'components'})
+        rows={k:v for k,v in self.rows.items() if k in selected['keys']}
+        files,_=original_atlas_images(self.p,rows,self.out,'pbr',size=8,selection=['tank_2_Basecolor.png'],filenames_override=selected['filenames'],total_atlases=selected['total_atlases'])
+        self.assertEqual([p.name for p in files],['tank_2_Basecolor.png'])
+        normals=selected_domains(self.p,['normal_Normal.png'],'pbr')
+        self.assertEqual(normals['keys'],{'components','body-left'})
+
     def test_short_color_and_normal_names_match_checklist_and_zip(self):
         from export_selection import catalogue
         row = self.domain('body-left')
@@ -270,7 +306,7 @@ class TextureBundleTests(unittest.TestCase):
             return SimpleNamespace(returncode=0, stderr=b'')
 
         with patch.dict(sys.modules, modules), patch.object(subprocess, 'run', raster_fixture), \
-                patch.object(native_atlas_export, 'original_atlas_images', lambda project, rows, out, preset, size, update: original_atlas_images(project, rows, out, preset, size=8)), \
+                patch.object(native_atlas_export, 'original_atlas_images', lambda project, rows, out, preset, size, update, **kw: original_atlas_images(project, rows, out, preset, size=8, **kw)), \
                 patch.object(sys, 'argv', ['surface_worker.py', '--job', str(self.out)]):
             with self.assertRaises(SystemExit) as ended:
                 runpy.run_path(str(Path(__file__).parent / 'surface_worker.py'), run_name='__main__')
