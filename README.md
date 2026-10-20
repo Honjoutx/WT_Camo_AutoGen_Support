@@ -4,7 +4,11 @@
 
 本地载具涂装工作台：用 Codex CLI 辅助模型审计、设计草图、分区矢量编辑、材质调整、原 UV 贴图导出与海报素材制作。
 
-仓库只包含工具、脚本、通用配置和自有工作流 skill。模型、角色素材、设计项目、生成结果、聊天记录及登录凭据保存在本地，不上传 Git。
+仓库只包含工具、脚本、通用配置和自有工作流 skill。
+
+## 工具界面
+
+![涂装布局工作台：分区画布、图层控制与导出](docs/images/workbench-editor.png)
 
 ## Windows 桌面应用
 
@@ -12,7 +16,7 @@
 
 `v0.1.0` 已包含导出加速升级：全速 / 均衡 / 串行模式、按可用 CPU 与内存并行处理、快速无损写盘和可选 GPU 法线加速。
 
-解压 `WT-Camo-Workbench-Windows-x64.zip`，运行 **WT Camo Workbench.exe**。内置 Python 和工作台依赖，独立窗口运行；Codex CLI、Blender 使用本机安装。顶部可切换简体中文与 English，语言选择会保留，不翻译设计稿、素材名或聊天原文。
+解压 `WT-Camo-Workbench-Windows-x64.zip`，运行 **WT Camo Workbench.exe**。内置 Python 和工作台依赖，独立窗口运行；Codex CLI、Blender 使用本机安装。
 
 用户工程与配置保存在 `%LOCALAPPDATA%/WT Camo Workbench/`，与应用资源分开。完整使用说明、构建和验证命令见 [桌面应用](docs/desktop.zh-CN.md)。
 

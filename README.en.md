@@ -6,6 +6,10 @@ A vehicle livery workbench with original-UV texture export, editable surface lay
 
 The repository contains code and reusable workflow instructions. Models, character art, projects, generated files, chat history and credentials stay local.
 
+## Interface
+
+![Livery workbench: surface canvas, layer controls and export options](docs/images/workbench-editor.png)
+
 ## Windows desktop app
 
 [Download the latest Windows app and SHA-256 checksum](https://github.com/Honjoutx/WT_Camo_AutoGen_Support/releases/latest). Choose the `WT-Camo-Workbench-Windows-x64.zip` release asset; GitHub's automatically generated Source code archives do not contain the application.
@@ -15,8 +19,6 @@ The repository contains code and reusable workflow instructions. Models, charact
 Extract `WT-Camo-Workbench-Windows-x64.zip` and run **WT Camo Workbench.exe**. Keep the adjacent `_internal` folder. Python and the workbench dependencies are included.
 
 Requires Windows 10/11 x64 and [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Local Codex CLI and Blender are optional external programs; use Application settings to specify their paths. Codex reuses its existing sign-in.
-
-Use the top toolbar to choose **English** or **简体中文**. The selection persists. Controls, status messages and the workflow guide are translated; artwork, project/layer names, asset filenames and conversation history remain original. New Codex requests include the selected reply language.
 
 Projects and settings live in `%LOCALAPPDATA%/WT Camo Workbench/`, outside the application directory. Replace the application folder to upgrade while preserving this data. Choose an existing workspace in Settings and restart to reuse projects.
 
