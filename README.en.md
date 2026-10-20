@@ -1,4 +1,4 @@
-# WT Camo Auto Gen
+# WT Camo AutoGen Support
 
 [简体中文](README.md) · English
 
@@ -8,7 +8,9 @@ The repository contains code and reusable workflow instructions. Models, charact
 
 ## Windows desktop app
 
-[Download the latest Windows app and SHA-256 checksum](https://github.com/Honjoutx/WT_Camo_Auto_Gen/releases/latest). Choose the `WT-Camo-Workbench-Windows-x64.zip` release asset; GitHub's automatically generated Source code archives do not contain the application.
+[Download the latest Windows app and SHA-256 checksum](https://github.com/Honjoutx/WT_Camo_AutoGen_Support/releases/latest). Choose the `WT-Camo-Workbench-Windows-x64.zip` release asset; GitHub's automatically generated Source code archives do not contain the application.
+
+`v0.1.0` includes the export acceleration upgrade: Full speed / Balanced / serial modes, parallel processing bounded by available CPU/RAM, fast lossless writes and optional GPU normal processing.
 
 Extract `WT-Camo-Workbench-Windows-x64.zip` and run **WT Camo Workbench.exe**. Keep the adjacent `_internal` folder. Python and the workbench dependencies are included.
 
@@ -23,8 +25,8 @@ Projects and settings live in `%LOCALAPPDATA%/WT Camo Workbench/`, outside the a
 Install Python 3.11–3.13, then run:
 
 ```powershell
-git clone https://github.com/Honjoutx/WT_Camo_Auto_Gen.git
-cd WT_Camo_Auto_Gen
+git clone https://github.com/Honjoutx/WT_Camo_AutoGen_Support.git
+cd WT_Camo_AutoGen_Support
 .\start.cmd
 ```
 

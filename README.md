@@ -1,4 +1,4 @@
-# WT Camo Auto Gen
+# WT Camo AutoGen Support
 
 [简体中文](README.md) · [English](README.en.md)
 
@@ -8,7 +8,9 @@
 
 ## Windows 桌面应用
 
-[下载最新版 Windows 应用与 SHA-256 校验文件](https://github.com/Honjoutx/WT_Camo_Auto_Gen/releases/latest)。请选择 Release 附件中的 `WT-Camo-Workbench-Windows-x64.zip`；GitHub 自动提供的 Source code 是源码包。
+[下载最新版 Windows 应用与 SHA-256 校验文件](https://github.com/Honjoutx/WT_Camo_AutoGen_Support/releases/latest)。请选择 Release 附件中的 `WT-Camo-Workbench-Windows-x64.zip`；GitHub 自动提供的 Source code 是源码包。
+
+`v0.1.0` 已包含导出加速升级：全速 / 均衡 / 串行模式、按可用 CPU 与内存并行处理、快速无损写盘和可选 GPU 法线加速。
 
 解压 `WT-Camo-Workbench-Windows-x64.zip`，运行 **WT Camo Workbench.exe**。内置 Python 和工作台依赖，独立窗口运行；Codex CLI、Blender 使用本机安装。顶部可切换简体中文与 English，语言选择会保留，不翻译设计稿、素材名或聊天原文。
 
@@ -19,8 +21,8 @@
 准备 **Python 3.11–3.13** 和已安装、已登录的 **Codex CLI**。下载后双击 **`start.cmd`**：
 
 ```powershell
-git clone https://github.com/Honjoutx/WT_Camo_Auto_Gen.git
-cd WT_Camo_Auto_Gen
+git clone https://github.com/Honjoutx/WT_Camo_AutoGen_Support.git
+cd WT_Camo_AutoGen_Support
 .\start.cmd
 ```
 
