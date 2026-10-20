@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import sys
 import subprocess
 import threading
 import time
@@ -18,6 +19,15 @@ CREATE_NO_WINDOW = getattr(subprocess, "CREATE_NO_WINDOW", 0)
 
 def find_codex_executable() -> str | None:
     """Resolve Codex even when a DCC host starts with a reduced PATH."""
+    portable = Path(__file__).resolve().parents[1] / "tools" / "livery-layout-editor"
+    if portable.is_dir():
+        sys.path.insert(0, str(portable))
+        try:
+            from runtime import codex_executable
+            return codex_executable()
+        except FileNotFoundError:
+            pass
+
     explicit = os.environ.get("CAMO_CODEX_PATH") or os.environ.get("CODEX_PATH")
     candidates: list[Path] = []
     if explicit:

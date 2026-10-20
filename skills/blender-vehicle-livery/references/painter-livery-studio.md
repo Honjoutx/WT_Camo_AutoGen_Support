@@ -6,7 +6,7 @@ Use this reference when the active host is Adobe Substance 3D Painter. The canon
 
 The validated local host is Substance 3D Painter 11.0.1 at:
 
-`E:\Program Files\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe`
+`C:\Program Files\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe`
 
 Painter 10.1 or newer is required because this plugin uses PySide6 and the modern Layer Stack API.
 
@@ -86,7 +86,7 @@ Do not store API credentials in these records. Resource records may contain sour
 
 - If the panel does not appear, confirm Painter is 10.1+, the package is in the user `python/plugins` directory, and the plugin is enabled. Launching through `start-painter-livery.ps1` bypasses the remembered enable state by requesting it as a startup module.
 - If startup reports `Internal C++ object (QCommonStyle) already deleted`, install plugin `0.3.1` or newer and reload once. This build no longer queries a transient style wrapper while constructing the reference tray.
-- If Agent connection fails, validate `F:\Camo_Auto_Gen\livery-workbench\server.py` and the local Codex login. The panel starts the bridge headlessly at `http://127.0.0.1:8766`.
+- If Agent connection fails, validate `<repository>\livery-workbench\server.py` and the local Codex login. The panel starts the bridge headlessly at `http://127.0.0.1:8766`.
 - A DCC host may start with a reduced `PATH`. Resolve Codex in this order: `CAMO_CODEX_PATH`, normal command lookup, then the newest `openai.chatgpt-*` VS Code/Cursor extension executable. Do not treat a generic `{"ok": true}` endpoint as compatible; require the project service ID and API version before enabling Send.
 - Preserve JSON error details returned by the local service. Show “Codex CLI not found”, authentication, or App Server errors directly in the Painter panel instead of reducing them to an opaque HTTP 404/400 label.
 - If resource import works but layer creation fails, confirm an `.spp` is open, Painter is in edition state, the correct Texture Set is active, and **嵌入当前 .spp 工程** was enabled.

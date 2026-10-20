@@ -1,0 +1,12 @@
+{
+  "workspace": "data/workspace",
+  "codex": null,
+  "blender": null,
+  "fonts": [],
+  "render": {
+    "device": "AUTO",
+    "backend": "AUTO",
+    "silent_cpu_fallback": true,
+    "samples": 64
+  }
+}

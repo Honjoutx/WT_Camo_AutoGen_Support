@@ -50,3 +50,11 @@ Thumbs.db
 *.key
 *.pfx
 *.p12
+
+# Portable workbench: user workspace, caches, chat and machine configuration
+/data/
+/config/runtime.local.json
+/tools/livery-layout-editor/state/
+/tools/livery-layout-editor/cache/
+/tools/livery-layout-editor/outputs/
+/.pytest_cache/

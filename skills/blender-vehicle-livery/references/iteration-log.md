@@ -1,113 +1,13 @@
-# Vehicle livery iteration log
+# Local iteration record template
 
-Record one entry for every rendered visual trial. Promote reusable findings into `SKILL.md`, the schema/validator, and the active style card during the same iteration.
+Keep completed records in the active project's local data directory, outside Git. Do not publish historical characters, source paths, conversation transcripts or project palettes in this shared file.
 
-## 2026-07-22 — mint industrial V3 aspect and typography correction
+For each meaningful correction, record:
 
-- Observation: the V2 side hero used a projector ratio of about 1.94 while its sampled source ratio was about 1.35, visibly stretching the face and body horizontally. Several supporting masks were stretched by roughly 20–66%. The character name used a generic rounded sans and was larger than necessary near the focal art.
-- Cause: projector `size` had been treated as an arbitrary coverage rectangle without comparing it with bitmap dimensions and `image_region`.
-- Correction: add image-header-based aspect auditing; require `PRESERVE` for hero art; limit other graphics to 8%; resize projection frames without changing one axis of the artwork; rebuild the name as glyph-only Agency FB typography in the rear-upper body safe zone.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/style-library.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, and the V3 style card.
-- Validation target: Blender left/right side and left/right front renders, all `aspect_layers` entries passing, both faces toward the vehicle front, and no non-name layer above hero art.
+- Current project id and affected source/region/face identifiers.
+- Observable problem and one reproducible example.
+- Evidence and cause: geometry, UV phase, material binding, art coordinates, mask, layer or export.
+- Applied change and source/output hashes where useful.
+- Focused validation result and remaining limitations.
 
-## 2026-07-22 — mint industrial V3 typography placement retry
-
-- Observation: the first aspect-safe render passed all ratio checks, but the name's rear-upper projector crossed the turret skirt and only fragments of the primary word remained visible. Reusing the same canvas placement also moved the word toward the front on the right side.
-- Cause: the safe zone was defined only in world/projector coordinates; it ignored real-geometry occlusion and the opposite local-X basis of left/right projectors.
-- Correction: use two glyph-only, normally readable text assets; place the primary word on the canvas-left for the left side and canvas-right for the right side, so both land toward the physical rear. Lower the projector into the visible middle body band and restore moderate primary-name scale.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/iteration-log.md`, and `mint-industrial-panel-anime-v3-aspect-safe.json`.
-- Validation target: full primary name visible on both side renders, secondary name legible at side resolution, no face overlap, angular typography retained, and all aspect checks still passing.
-- Result: passed in `pantsyr-mint-industrial-panel-v3-aspect-safe-r2`; both side names are rear-biased and readable, both three-quarter views keep the text clear of the face, and all 14 `aspect_layers` report zero distortion.
-
-## 2026-07-22 — mint industrial V4 roof/front/rear expansion
-
-- Observation: V3 R2 has a complete side composition, but the rear body roof remains mostly blank and the direct front/rear faces have no dedicated visual grammar. Existing broad top projectors also affect both body and turret rather than isolating the requested body cover.
-- Cause: the project evolved from side-first composition and reused only generic top layers; it lacked explicit surface-direction contracts and orthogonal approval views.
-- Correction: generate three independent no-text masks: a longitudinal symmetric roof spine, a forward-converging V nose, and a broad rear termination panel. Add body-only top projection, inward front/rear projections, aspect auditing, bilateral intent, and direct top/front/rear renders.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, the V4 style card, and `references/style-library.md`.
-- Validation target: visible but localized roof cover, readable front/rear identities without side bleed, correct world directions, all aspect checks passing, and preservation of the approved V3 R2 side/hero/name composition.
-- R1 result: the direct front and rear compositions passed and side art remained intact, but the new body-roof graphic was absent. Its projector Z interval was `2.1..7.1`, floating above the lower rear-deck polygons.
-- R2 correction: keep the body-only Y footprint and aspect ratio, lower the roof projector center so its volume reaches below the deck surface, then render to a new output directory and recheck top/three-quarter views.
-- R2 result: passed in `pantsyr-mint-industrial-panel-v4-multisurface-r2`. The longitudinal spine is visible and localized on the rear body deck; the front keeps a centered downward V identity, the rear keeps a distinct broad terminal band, and neither end treatment harms the approved side hero/name composition in four three-quarter views. All 17 aspect-audited layers pass.
-
-## 2026-07-23 — mint industrial V5 structure-guided front redesign
-
-- Observation: the V4 front graphic is bilaterally balanced but behaves as one generic large V. It crosses two independent central access panels and ignores their center seam, lamp groups, hinges, cables, latches, and protruding lower hardware.
-- Cause: the front artwork was generated before a projector-aligned extraction of the real mesh structure. Its design canvas expressed the general vehicle silhouette rather than actual paintable armor patches.
-- Correction: add a reusable structure-guide renderer that filters coplanar triangulation noise, records feature edges and front-facing surface patches, and uses the exact image-projector frame. Add an aspect-preserving guide-canvas composer. Generate two mirrored front modules and fit them to the detected paired access-panel patches 5 and 6, leaving the center seam and hardware transparent.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/style-library.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, `scripts/render_surface_structure_guide.py`, `scripts/compose_guided_livery_asset.py`, and the V5 style card.
-- R1 validation target: direct front render shows both modules contained by the paired access panels; no paint bridges the center seam or outer lamp groups; front three-quarter views retain the approved side hero/name composition; structure-guide contract and all 17 aspect checks pass.
-- R1 result: passed in `pantsyr-mint-industrial-panel-v5-structure-fit-r1`. Both generated modules remain inside detected access-panel patches 5 and 6; the central seam, outer lamp groups, lower cables, latches, and tow hardware stay clear. Left/right front views preserve the approved side hero and typography, the structure-guide contract validates, and all 17 aspect-audited layers pass.
-
-## 2026-07-23 — mint industrial V6 four-edge roof continuity
-
-- Observation: the V5 body roof combines two broad legacy layers shared with the turret and one narrow rear-deck spine. The top view has useful isolated details, but the body-roof perimeter does not deliberately receive the large left/right side blocks or the front/rear end treatments, so several corner transitions end abruptly.
-- Cause: previous top assets were designed as independent top decoration rather than from a full body-roof structure guide plus an explicit four-edge color contract.
-- Correction: render a body-only full-roof guide over the exact body bounds; restrict the legacy top structural/signage layers to the turret; replace the narrow spine with two guide-aligned vector-like layers. The main layer connects a rear terminal band to paired longitudinal side rails and paired front returns through overlapping chamfers. A separate warm-white/amber layer supplies metallic transition seams and service notches while keeping the turret-ring center open.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/style-library.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, `scripts/render_surface_structure_guide.py`, `scripts/render_guided_vector_asset.py`, and the V6 style card.
-- R1 validation target: direct top and four high-corner views show one continuous perimeter flow with no hard 90-degree termination; turret-ring negative space remains legible; front/rear identities and side hero/name art remain intact; all 18 aspect audits and the structure/direction/edge-continuity contracts pass.
-- R1 result: passed in `pantsyr-mint-industrial-panel-v6-roof-wrap-r1`. The rear terminal band flows into paired side shoulder rails and paired front returns through overlapping chamfers; no corner ends as an isolated 90-degree cut. Mint and warm-white returns prevent an overly heavy rear frame, the turret-ring center stays open, four high-corner views preserve side hero/name art, and all 18 aspect-audited layers pass.
-
-## 2026-07-23 — mint industrial V7 turret and isolated radar design
-
-- Observation: V6 still reused broad generic side/top graphics on the coarse turret object. The turret skirt did not follow its real long armor panels, while the radar antenna front, rear service doors, vents, and ribbed top were not separated from ordinary turret decoration.
-- Cause: the earlier project treated `pantsyr_sm_sv_turret_c` as one visual zone even though the mesh combines the turret, weapons, dome, radar support, antenna face, rear service hardware, and top ribs.
-- Correction: render separate guides for left/right turret skirts and radar front/rear/top. Replace the old turret layers with paired structure-guided satin blocks and metallic detail islands; extract an aspect-preserved upper-body character asset with transparent background and opposite side sampling; create independent radar surface stacks with high-Z clips and dedicated material response. Add a reusable `radar_isolation_contract` to the Skill, schema, validator, and V7 style card.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/style-library.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, and `mint-industrial-panel-anime-v7-turret-radar.json`.
-- R1 validation target: all guide, direction, aspect, hero-stack, symmetry, roof-continuity, and radar-isolation contracts pass; turret characters remain paired with both faces toward the vehicle front; no character art reaches radar/weapons; radar front reads as the focal scan face; rear seam and vents remain legible; top detail follows the ribbed structure.
-- R1 result: project validation and layered material construction passed, but preview setup stopped before the first image. Blender 5.2 localized the default node names to Chinese, so fixed-name lookups for `Principled BSDF` and `Background` returned no node.
-- R2 correction: resolve default material/world nodes by `bl_idname`, create and connect a missing typed node when necessary, then rerender to a new output directory without changing the V7 composition.
-- R2 result: all automatic contracts and 26 aspect audits passed, and the radar front/rear/top separation rendered correctly. Visual review rejected the turret hero placement: the broad whole-turret guide placed the paintable skirt at the canvas bottom, so only clothing and torso fragments reached the flat panel while the face landed on empty/non-facing space.
-- R3 correction: retain the broad guides for the paired turret underlays, but create separate panel-local left/right hero guides centered on the actual long skirt patch. Rebind only the hero layers to the smaller aspect-matched frames so the face anchor lies on visible armor while all other V7 layers remain unchanged.
-- R3 result: passed in `pantsyr-mint-industrial-panel-v7-turret-radar-r3`. Both turret faces are visible on the real skirt panels and occupy the forward end on their respective exterior views; the opposite flip values preserve front-facing placement. Character art does not reach the weapons, support frame, dome, or radar. The radar front keeps a centered scan focal mark, the rear retains its paired-door seam and vent readability, and the top treatment follows the ribbed equipment edge. All 26 layers applied, all 26 aspect audits passed, all 16 previews rendered, and the structure, direction, symmetry, hero-stack, roof-continuity, and radar-isolation contracts validated.
-
-## 2026-07-23 — mint industrial V8 turret geometry and per-color assets
-
-- Observation: V7 used one multicolor bitmap plus one metallic-detail bitmap for each turret/radar surface, so individual colors could not receive independent finish tuning. The central turret roof remained mostly untreated, and a raw projector-canvas coverage percentage would be misleading because the side and roof guides contain large empty regions and unrelated hardware.
-- Cause: the earlier project had structure guides but no geometry-plan/per-color asset contract, no explicit paintable-surface coverage basis, and no bounded decal system.
-- Correction: create one guide-aligned overall geometry plan for the paired turret skirts, central turret roof, radar front, radar rear, and radar ribbed top. Derive twenty unique single-color production assets from those plans, apply independent roughness/metallic/coat values, and add four generated functional decals from two coherent families below the hero layer. Define coverage against visible paintable guide patches after named negative-space exclusions, never the full projector canvas.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/macro-composition-and-decals.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, `scripts/test_macro_composition_contract.py`, and `mint-industrial-panel-anime-v7-turret-radar.json`.
-- R1 result: passed in `pantsyr-mint-industrial-panel-v8-turret-geometry-r1`. Paired skirt composition and forward-facing aspect-preserved hero art remain symmetric; the roof now uses a continuous graphite/secondary frame around service hatches and optical hardware; radar front, rear, and ribbed top retain independent identities while keeping the rear seam, vents, hinges, and support equipment clear. All 44 layers applied, all 44 aspect audits passed, all 16 previews rendered, the four-decals/two-family budget passed, and the macro, structure, direction, symmetry, hero-stack, roof-continuity, and radar-isolation contracts validated. The OBJ still references a missing source MTL, so the Blender layered material remains the authoritative working master.
-
-## 2026-07-23 - mint industrial V9 depth-complete radar and forward square radar
-
-- Observation: V8 showed only the upper portion of the roof-mounted radar front treatment, while the separate X-braced square radar on the turret front remained base paint. The provided character art also offered recognizable frog and snake motifs that had not yet been normalized into the equipment decal system.
-- Cause: the roof radar is tilted and stepped. Its main screen plus lower forward subpanel span roughly `-0.79..0.13` in projector-local depth, but V8 used total depth `0.9` and therefore reached only `+/-0.45`. The second square radar was not declared as an equipment zone at all.
-- Correction: regenerate a depth-complete roof-radar guide and geometry plan, extend four single-color assets across the main screen and lower subpanel, and require total depth `1.65`. Add a separate tight guide and four-color plan for the turret-forward square radar. Create original deterministic frog-scan and serpent-circuit glyphs from the provided art's visible motifs after online identity research; copy no online bitmap, logo, signature, or text. Extend the radar validator with required equipment zones, per-zone minimum Z, and optional model-derived depth ranges.
-- Skill updates: `SKILL.md`, `references/anime-project-schema.md`, `references/style-library.md`, `references/iteration-log.md`, `scripts/anime_livery_core.py`, `scripts/generate_character_radar_assets.py`, `scripts/build_pantsyr_v9_radar_project.py`, and `mint-industrial-panel-anime-v7-turret-radar.json`.
-- R1 validation target: all 49 layers and aspect audits pass; roof-radar graphics reach both the tilted main screen and lower subpanel without rear spill; the forward square radar reads as a separate X-aware composition; frog/snake glyphs remain sparse and below hero art; all 17 views and the macro, structure, direction, symmetry, hero-stack, roof-continuity, equipment-zone, depth-range, and radar-isolation contracts pass.
-- R1 result: rejected after render review. The roof-radar depth correction succeeded and covered both the main screen and lower subpanel, but the new square-radar projector was centered on a smaller rear plate near `Y=-1.07`; the visible frontmost X-braced panel therefore stayed in base mint paint. Automatic layer and equipment-zone checks alone did not catch the semantic surface mismatch.
-- R2 correction: inspect the direct-front structure guide again, identify the actual X-braced radar patch at approximately `X=-0.666..0.646`, `Z=1.965..3.136`, `Y=-3.10..-2.48`, and move the projector to `[0,-2.75,2.55]` with size `[1.5,1.3]`, total depth `0.85`, facing threshold `0.60`, and required depth range `-0.381..0.332`. Regenerate the four single-color assets to fill the taller panel while retaining diagonal X-brace corridors.
-- R2 result: passed in `pantsyr-mint-industrial-panel-v9-radar-complete-r2`. All 49 layers applied, all 49 aspect audits passed, all 17 previews rendered, and the equipment-zone/depth contract test passed. Direct front, radar-front, forward-radar, top, and high three-quarter views confirm full roof-radar coverage, an independently designed forward X-braced panel, readable sparse frog/snake sensor glyphs, and no material projection onto the turret sides. The missing source MTL warning remains; the layered `.blend` is the authoritative master.
-
-## 2026-07-29 - Native Substance 3D Painter 11 plugin
-
-- Request: replace the browser/Blender-hosted editing direction with a native Substance 3D Painter plugin that keeps Agent + Skill, screenshot framing, generated-resource handling, and application inside Painter.
-- Environment correction: the reinstalled host is Painter `11.0.1` at the same application path, with Python `3.11.6`, PySide6, and the modern `substance_painter.layerstack` API. Remove the obsolete Painter 9 assumption and do not load PySide2 widgets into this host.
-- Implementation: create `vehicle_livery_studio` as an optional/startup-loadable Painter package; expose one dock for project discovery, headless local Agent connection, screenshot cropping, in-panel approvals, image import, user Shelf indexing, and projection choice. Version every image copied into the project library.
-- Layer correction: after importing a texture into the current `.spp`, create a native Fill layer on the active Texture Set stack, enable only Base Color, assign the imported project `ResourceID`, set Planar/UV/Triplanar/Spherical/Cylindrical projection, and select the new layer for manual gizmo refinement.
-- Boundary rule: a screenshot frame constrains generated composition but cannot uniquely prove covered polygons. Validate the direct view plus two oblique views and use Painter masks or a known UV layout for shared/occluding geometry.
-- Launch behavior: install under Painter's user `python/plugins` directory. The project launcher sets only process-local plugin variables and requests the plugin as a startup module, avoiding registry edits and avoiding a separate browser page.
-- Skill updates: `SKILL.md`, `agents/openai.yaml`, `references/painter-livery-studio.md`, `references/iteration-log.md`, `painter_plugins/vehicle_livery_studio/`, `livery-workbench/agent_bridge.py`, and the Painter install/build/start scripts.
-
-## 2026-07-29 - Painter Agent HTTP 404 and reduced-PATH recovery
-
-- Finding: the Painter dock connected to `/api/health`, but Send returned `HTTP Error 404: Not Found`. Replaying the exact request exposed the hidden JSON body: the background server could not find Codex CLI.
-- Cause: Painter launched the local Python service with a reduced `PATH`; `codex.exe` lived inside the current `openai.chatgpt-*` VS Code extension. The bridge used only `shutil.which("codex")`, and the HTTP server mapped every `FileNotFoundError` to 404, hiding the actionable cause.
-- Correction: resolve an explicit `CAMO_CODEX_PATH` first, then normal PATH, then the newest supported VS Code/VS Code Insiders/Cursor extension executable. Pass the resolved path from the Painter launcher, add a service ID/API version/Agent-availability health contract, and preserve JSON error details in the Painter client.
-- Validation: with Codex deliberately absent from `PATH`, the resolver found `codex.exe` in the current VS Code extension. The updated service reported `service: camo-auto-gen-livery-agent`, `apiVersion: 2`, and `agentAvailable: true`; `/api/agent/message` returned `202` with valid thread/turn IDs. After recoverable upstream reconnect activity, the streamed reply completed as `Painter Agent 连接测试成功` with a normal `turn_completed` event and no file writes.
-- Release: publish Painter plugin `0.2.1` and update the Painter failure-routing reference in the same iteration.
-
-## 2026-07-29 - Painter drag/drop Agent reference library
-
-- Request: browse existing artwork inside Painter, drag selected resources into the current task, and give the embedded Agent stronger visual context without applying those images automatically.
-- Implementation: add an incrementally loaded thumbnail project library for the managed asset roots and current `2s38/`, `SMSV/`, and `style1/` source-art folders; add a persistent 16-item reference tray with search, double-click, file drag/drop, Painter `resource://` recognition, remove, and clear controls.
-- Data contract: copy external files into versioned `assets/painter-library/references/` paths, deduplicate records, and send them as `context.reference_assets` with an explicit reference-only policy. Painter resource records carry name/type/usage metadata when the public API does not expose readable pixels.
-- Release: publish Painter plugin `0.3.0`; validate staging, MIME extraction, persistence, Agent context wiring, installation, and the packaged ZIP in the same iteration.
-
-## 2026-07-29 - Painter reference-tray QCommonStyle reload failure
-
-- Observed problem: Painter rejected plugin `0.3.0` during `_load_values()` because `ReferenceDropList.set_records()` called `self.style().standardIcon()` and the returned `QCommonStyle` C++ object was already deleted.
-- Cause: the host may invalidate temporary Qt style wrappers while the Python plugin is being hot-reloaded, even before the dock is fully attached.
-- Correction: remove all reference-tray dependence on `QWidget.style()` and use a Python-owned empty `QIcon` as the metadata-resource fallback; local image records still use their own decoded thumbnails.
-- Release and validation: publish plugin `0.3.1`, confirm no `style()` or `standardIcon()` call remains in the package, compile the full plugin, reinstall it, and rebuild the distributable ZIP.
+Promote only reusable, generic findings into shared code or skill rules. Avoid duplicating source models and full texture sets in every record. The user's current brief and latest explicit instructions take precedence over optional older design profiles.

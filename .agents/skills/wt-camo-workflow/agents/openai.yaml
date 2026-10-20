@@ -1,0 +1,6 @@
+interface:
+  display_name: "WT Camo Workbench"
+  short_description: "Create editable vehicle liveries while preserving original UVs"
+  default_prompt: "Use $wt-camo-workflow to work on the selected vehicle project, starting with its current brief, model audit and a design sketch."
+policy:
+  allow_implicit_invocation: true

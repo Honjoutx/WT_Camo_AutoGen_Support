@@ -1,12 +1,13 @@
 param(
     [int]$Port = 8766,
-    [string]$PythonPath = "E:\Program Files\python\python313\python.exe"
+    [string]$PythonPath = ""
 )
 
 $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $serverPath = Join-Path $projectRoot "livery-workbench\server.py"
 
+if (-not $PythonPath) { $PythonPath = Join-Path $projectRoot ".venv\Scripts\python.exe" }
 if (-not (Test-Path -LiteralPath $PythonPath -PathType Leaf)) {
     $pythonCommand = Get-Command "python" -ErrorAction Stop
     $PythonPath = $pythonCommand.Source
@@ -23,7 +24,7 @@ try {
     }
     $process = Start-Process `
         -FilePath $PythonPath `
-        -ArgumentList @($serverPath, "--port", "$Port", "--no-browser") `
+        -ArgumentList @(('"' + $serverPath + '"'), "--port", "$Port", "--no-browser") `
         -WorkingDirectory $projectRoot `
         -WindowStyle Hidden `
         -PassThru

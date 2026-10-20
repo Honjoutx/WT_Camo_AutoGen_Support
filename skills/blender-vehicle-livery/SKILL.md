@@ -7,6 +7,8 @@ description: Inspect, design, apply, live-preview, and export vehicle liveries t
 
 Use Blender MCP for live scene access and the bundled scripts for deterministic vehicle processing. Preserve source assets and write every generated file to a new output directory.
 
+For the browser-based physical-plane editor, use `.agents/skills/wt-camo-workflow/SKILL.md` and its current project contract. The sections below cover the optional older Blender/Painter pipelines. Apply profile-specific symmetry, hero protection and continuity gates only when enabled in the current project; do not inherit a past theme or force an old profile onto a new brief. Save iteration evidence inside the selected local project, not in this shared skill or a public case history.
+
 ## Workflow
 
 1. Confirm the `blender` MCP server is available. If the current session predates MCP registration, ask the user to restart the session after configuration.
@@ -120,7 +122,7 @@ For anime artwork, character decals, logos, text, or manual-style directional im
 
 Every visual trial must leave reusable knowledge in the Skill during the same iteration:
 
-1. Record the observed problem, likely cause, applied change, and validation result in [references/iteration-log.md](references/iteration-log.md).
+1. Record the observed problem, likely cause, applied change, and validation result in the current project's local iteration record. Use [references/iteration-log.md](references/iteration-log.md) only as a generic template.
 2. Update the durable rule in this `SKILL.md` and, when machine-checkable, in the project schema and `anime_livery_core.py` validator. Update the active versioned style card when the finding is style-specific.
 3. Add an `iteration_record` to the trial project, list the Skill files updated, and enable `design_rules.record_iteration_in_skill`.
 4. Render a new output directory; never rewrite a previously approved trial. A trial is not complete when only its JSON or bitmap was tweaked.

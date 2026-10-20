@@ -1,228 +1,110 @@
 # WT Camo Auto Gen
 
-面向 Blender 与 Adobe Substance 3D Painter 的载具涂装设计、素材生成和 Agent 辅助工作流。
+本地载具涂装工作台：用 Codex CLI 辅助模型审计、设计草图、分区矢量编辑、材质调整、原 UV 贴图导出与海报素材制作。
 
-项目提供可复用的 Codex Skill、Blender 分层涂装管线，以及原生 Substance 3D Painter 插件。仓库只保存程序、脚本、配置模板和设计规则；车辆模型、角色立绘、参考图片、生成贴图、`.spp`、`.blend` 与渲染结果不会上传到 Git。
+仓库只包含工具、脚本、通用配置和自有工作流 skill。模型、角色素材、设计项目、生成结果、聊天记录及登录凭据保存在本地，不上传 Git。
 
-## 主要功能
+## 快速启动（Windows）
 
-### Substance 3D Painter 插件
-
-- 在 Painter 内提供原生 **Vehicle Livery Agent** 停靠面板。
-- 截取当前 Painter 窗口并手动框选需要设计的模型表面。
-- 将框选截图、Painter 工程信息、纹理集、活动图层栈和投影方式发送给 Agent。
-- 复用本机 Codex/ChatGPT 登录，不需要额外配置 OpenAI API Key。
-- 浏览项目现有图片素材，并拖入参考区辅助 Agent 理解角色、配色、纹理和版式。
-- 支持从 Windows 资源管理器拖入图片；外部图片会版本化复制到项目目录。
-- 尝试识别 Painter Assets 拖拽数据中的 `resource://` 资源标识。
-- 将 Agent 生成结果导入当前 `.spp`、可选用户 Shelf，并记录素材来源。
-- 自动创建可编辑的原生 Fill 图层，支持 Planar、UV、Triplanar、Spherical 和 Cylindrical 投影。
-- 保留 Painter 的投影 Gizmo、蒙版、透明度、混合模式和材质通道供后续手动调整。
-
-当前插件版本：`0.3.1`。
-
-### Blender 涂装管线
-
-- Blender MCP 场景检查和模型审计。
-- 程序化底色、粗糙度、金属度、清漆与微表面参数。
-- 二次元立绘、文字、贴花和多层图片投射。
-- 结构导引图、对称约束、立绘比例保护和投影范围验证。
-- JSON 预设、实时控制面板、热重载、预览渲染和 `.blend`/GLB 输出。
-
-## 仓库结构
-
-```text
-painter_plugins/vehicle_livery_studio/   Painter 原生插件
-livery-workbench/agent_bridge.py         Codex App Server 桥接
-livery-workbench/server.py               本地 Agent HTTP 服务
-skills/blender-vehicle-livery/           Codex 涂装 Skill 和设计规则
-scripts/                                 安装、启动、构建与管线脚本
-config/                                  可复用 JSON 示例和模板
-requirements-assets.txt                  Painter Agent 服务所需 Python 依赖
-requirements-mcp.txt                     Blender MCP 依赖
-```
-
-## 环境要求
-
-- Windows 10/11。
-- Adobe Substance 3D Painter 10.1 或更高版本。
-  - 当前实现已在 Painter `11.0.1`、Python `3.11`、PySide6 环境验证。
-- Python 3.11 或更高版本。
-- PowerShell 7 或 Windows PowerShell 5.1。
-- 已安装并登录 Codex CLI。
-- 使用 Blender 功能时需要 Blender 4.x/5.x；当前主要验证版本为 Blender 5.2 LTS。
-
-## 快速开始：Substance 3D Painter
-
-### 1. 克隆仓库
+准备 **Python 3.11–3.13** 和已安装、已登录的 **Codex CLI**。下载后双击 **`start.cmd`**：
 
 ```powershell
 git clone https://github.com/Honjoutx/WT_Camo_Auto_Gen.git
 cd WT_Camo_Auto_Gen
+.\start.cmd
 ```
 
-### 2. 安装项目本地 Python 依赖
+首次创建 `.venv`、安装依赖、生成独立示例工作区，随后打开 `http://127.0.0.1:18188`。之后复用环境；依赖清单变化时才重新安装。关闭浏览器后后台服务继续运行。
+
+端口占用时：
 
 ```powershell
-python -m venv .venv
+.\start.cmd -Port 18190
+```
+
+指定 Python 或不打开浏览器：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/start-workbench.ps1 -PythonPath "D:\Python313\python.exe" -NoBrowser
+```
+
+停止本启动器创建的服务及其子进程（运行中任务会中断，已保存文件保留）：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/stop-workbench.ps1
+```
+
+指定其他端口时，停止命令也传相同的 `-Port`。
+
+## 使用流程
+
+1. 初始项目提供原创矢量分区草图，没有游戏模型与角色素材，也不代表实际模型的 UV。
+2. 在素材库添加图片/SVG，分区调整位置、等比大小、旋转、翻转、图层顺序、透明度、阴影和金属/粗糙度；支持撤销、布局存档及冲突保护。
+3. 在 **Codex** 对话面板连接本机 CLI，选择模型与访问范围，发送文字或图片附件。流程选项覆盖修复、任务书、草图、分区、材质、迁移、映射检查、导出和海报。
+4. **模型初始修复与拆分** 接受本机 OBJ 路径，分析 MTL、整数 UV 相位和模块归属，另存修复 OBJ/MTL、原 UV 备份及报告。自动分类需结合真实结构复核。
+5. 让 Codex 按模型建立真实主要平面、面归属及原 UV 绑定。模型修复不自动完成语义平面注册；未绑定草图只能导出分区 PNG/SVG，不能冒充游戏贴图。
+6. 已注册模型项目可预览和导出原 UV 图集，支持 4K/8K、指定图集/通道及可选 GPU 贴图计算。最终 PNG 按原图集归并，只导出修改过的文件，放在同一目录。
+
+命名示例：`vehicle_body_c_camo_Basecolor.png` → `vehicle_body_Basecolor.png`，法线为 `vehicle_body_Normal.png`。内部编辑分区不增加最终图集数量。
+
+参见 [部署说明](docs/deployment.zh-CN.md)、[设计执行规范](tools/livery-layout-editor/docs/workflow-guide.zh-CN.txt) 与 [模型绑定契约](.agents/skills/wt-camo-workflow/references/project-contract.md)。
+
+## 配置与诊断
+
+需要指定外部工作区、Codex、Blender 或字体时，复制 `config/runtime.example.json` 为 **`config/runtime.local.json`** 后修改。后者已被 Git 忽略。环境变量也可覆盖：
+
+```powershell
+$env:WT_CAMO_WORKSPACE = "D:\LiveryProjects"
+$env:WT_CAMO_CODEX = "D:\Tools\codex.exe"
+$env:WT_CAMO_BLENDER = "D:\Blender\blender.exe"
+.\start.cmd
+```
+
+优先识别 PATH 中的 Codex 原生程序、常见 npm 安装包、VS Code 扩展附带的 CLI，复用现有登录。Blender 只在模型预览、烘焙或渲染时需要；草图、聊天与 OBJ 修复不依赖 Blender、Node、Photoshop 或 Painter。
+
+```powershell
+.\.venv\Scripts\python.exe scripts/doctor-workbench.py
+# 验证 CLI 握手、登录状态与可用模型，不发送生成任务：
+.\.venv\Scripts\python.exe scripts/doctor-workbench.py --connect
+```
+
+Blender 渲染默认 AUTO 优先 GPU，否则使用 CPU；可配置严格 GPU。贴图计算的 GPU 与 Blender 分别配置，需要可用 CuPy/CUDA 环境；缺少时界面报告或回退。8K 仍受显存、内存及 PNG 写盘速度限制。
+
+## 项目、存档和 skill
+
+默认工作区 `data/workspace/`，每个项目独立目录，相关车型可选择共享素材库。布局存档只记录参数，不可变资源按内容摘要复用，ZIP 下载时打包。独立搬运使用 portable 输出；轻量项目需连同共享资源一起备份。不要清理仍被引用的共享池。
+
+仓库级 [wt-camo-workflow skill](.agents/skills/wt-camo-workflow/SKILL.md) 供 Codex 自动发现。外部工作区会同步这份项目 skill，不修改全局 skill。也可输入 `$wt-camo-workflow`。规范不内置历史主题、角色或配色。旧的可选 Blender/Painter skill 保留在 `skills/blender-vehicle-livery/`。
+
+CLI 使用自己的模型/MCP 配置，不自动获得另一聊天应用的 ImageGen、Blender MCP 或 Photoshop MCP。外部应用能力需在本机 CLI 环境配置。
+
+## 可选 Painter 与 Blender MCP
+
+原生 Vehicle Livery Agent 和 Blender 脚本保留为独立入口：
+
+```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements-assets.txt
+powershell -File scripts/install-painter-livery-plugin.ps1
+powershell -File scripts/start-painter-livery.ps1 -PainterPath "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"
 ```
 
-插件启动 Agent 服务时会优先使用项目中的 `.venv`。
+参见 [Painter 工作流](skills/blender-vehicle-livery/references/painter-livery-studio.md)。Blender MCP 使用 `requirements-mcp.txt` 与 `scripts/start-blender-mcp.ps1`，不是主工作台启动依赖。
 
-### 3. 安装 Painter 插件
-
-```powershell
-.\scripts\install-painter-livery-plugin.ps1
-```
-
-默认安装目录：
+## 目录和验证
 
 ```text
-%USERPROFILE%\Documents\Adobe\Adobe Substance 3D Painter\python\plugins\vehicle_livery_studio
+start.cmd                         一键安装/启动
+scripts/*workbench*               安装、启动、停止、诊断
+tools/livery-layout-editor/        编辑器、聊天、修复、烘焙/导出
+.agents/skills/wt-camo-workflow/   通用执行 skill 与契约
+config/runtime.example.json       本机配置模板
+data/workspace/                   本地项目（Git 忽略）
+skills/blender-vehicle-livery/     可选 Blender/Painter 流程
+painter_plugins/                  可选 Painter 插件
 ```
-
-### 4. 启动 Painter
 
 ```powershell
-.\scripts\start-painter-livery.ps1
+.\.venv\Scripts\python.exe -X utf8 -m unittest discover -s tools/livery-layout-editor -p "test_*.py"
 ```
 
-如 Painter 安装在其他位置：
-
-```powershell
-.\scripts\start-painter-livery.ps1 `
-  -PainterPath "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"
-```
-
-也可以正常启动 Painter，在 Python 插件管理器中启用 `vehicle_livery_studio`，然后打开：
-
-```text
-Window > Vehicle Livery Agent
-```
-
-## Painter 使用流程
-
-1. 打开或创建 `.spp` 工程，选择需要处理的 Texture Set。
-2. 将 3D 视口旋转到目标设计角度。
-3. 点击 **截图并框选设计区域**，框住实际需要生成涂装的表面。
-4. 在 **参考素材库** 搜索素材，将图片拖入下方 Agent 参考区；也可以从资源管理器直接拖入。
-5. 选择 Planar、UV 或 Triplanar 等投影方式。
-6. 输入设计要求并发送给 Agent。
-7. Agent 返回图片后，插件会按设置导入 Painter 并创建 Fill 图层。
-8. 在 Painter 中调整投影框、蒙版、混合方式和材质通道。
-9. 从框选视角和至少两个斜视角检查人物比例、边缘、遮挡和错误投射。
-
-参考区最多保存 16 项素材。参考图片只用于帮助 Agent 思考，不会自动替换当前贴图或创建图层。
-
-Painter 的公开 Python Resource API 不保证提供资源原图路径。因此，从 Painter Assets 直接拖入的 `resource://` 项目可能只能向 Agent 提供名称、类型和用途；需要像素级分析时，请拖入对应的本地图片文件。
-
-## Agent 服务
-
-Painter 面板会自动尝试启动本地 Agent 服务。也可以单独启动：
-
-```powershell
-.\scripts\start-painter-agent-service.ps1 -Port 8766
-```
-
-停止由项目脚本启动的服务：
-
-```powershell
-.\scripts\stop-painter-agent-service.ps1 -Port 8766
-```
-
-默认地址：
-
-```text
-http://127.0.0.1:8766
-```
-
-服务只监听本机回环地址。它通过 Codex App Server 复用现有登录，不会在浏览器 JavaScript 或项目设置中保存 API 凭据。
-
-## 构建 Painter 插件
-
-```powershell
-.\scripts\build-painter-livery-plugin.ps1
-```
-
-默认输出：
-
-```text
-dist\vehicle-livery-painter-plugin-0.3.1.zip
-```
-
-`dist/` 属于本地构建产物，不提交到 Git。
-
-## Blender 基础用法
-
-创建项目本地 MCP 环境：
-
-```powershell
-python -m venv .tools\blender-mcp-env
-.\.tools\blender-mcp-env\Scripts\python.exe -m pip install -r requirements-mcp.txt
-```
-
-启动 Blender MCP：
-
-```powershell
-.\scripts\start-blender-mcp.ps1 -ModelPath ".\SMSV\vehicle.obj"
-```
-
-运行分层二次元涂装管线：
-
-```powershell
-.\scripts\run-anime-livery.ps1 `
-  -ModelPath ".\SMSV\vehicle.obj" `
-  -ProjectPath ".\config\anime-liveries\pantsyr-anime-template.json" `
-  -OutputDir ".\outputs\anime-test"
-```
-
-生成的 `.blend` 是分层工作版本，预览图与 `report.json` 会写入同一输出目录。
-
-## 数据目录
-
-- Painter 框选记录：`painter-livery-studio/state/captures/`
-- Painter 插件设置：`painter-livery-studio/state/settings.json`
-- Agent 生成素材：`assets/livery-studio/generated/`
-- Painter 导入素材：`assets/painter-library/textures/`
-- 外部参考图片副本：`assets/painter-library/references/`
-- Painter 资源索引：`assets/painter-library/index.json`
-- Blender 输出：`outputs/`
-
-这些目录中的用户素材和运行时数据默认由 `.gitignore` 排除。
-
-## 常见问题
-
-### 插件没有出现在 Painter 中
-
-确认 Painter 版本不低于 10.1，插件已安装到用户 `python/plugins` 目录，并在 Python 插件管理器中启用。也可以通过 `start-painter-livery.ps1` 启动。
-
-### 出现 `QCommonStyle already deleted`
-
-安装或更新到插件 `0.3.1` 及以上版本，然后重新加载插件。若 Painter 仍缓存旧模块，请完整重启 Painter。
-
-### Agent 返回 HTTP 404
-
-先点击面板中的 **连接 Agent**。确认 Codex CLI 已登录，并检查：
-
-```powershell
-codex login status
-```
-
-插件会依次从 `CAMO_CODEX_PATH`、系统命令路径，以及受支持编辑器的 `openai.chatgpt-*` 扩展中查找 Codex。
-
-### Planar 投影覆盖了不需要的零件
-
-截图框是构图边界，不等于模型面选择。请在 Painter 中缩小投影深度、调整 Gizmo、添加几何蒙版，或改用明确的 UV 工作流。
-
-### 打开工程只看到底色
-
-确认视口处于材质显示模式、生成图片已导入当前 `.spp`，并且活动 Texture Set 中存在启用 Base Color 的 Fill 图层。
-
-## 素材与隐私边界
-
-请勿提交授权受限的车辆模型、角色立绘、私人参考包、生成渲染、`.spp`、`.blend` 或凭据。仓库的 `.gitignore` 已排除当前常用素材、输出和运行时目录；新增素材位置后仍应在推送前检查：
-
-```powershell
-git status
-```
+接入采用官方 [Codex App Server 协议](https://developers.openai.com/codex/app-server)，skill 发现方式见 [Codex Skills](https://developers.openai.com/codex/skills)。协议随 CLI 版本变化，异常时先运行诊断并记录版本。

@@ -45,7 +45,7 @@ LIVERY_SKILL_ROOT = PROJECT_ROOT / "skills" / "blender-vehicle-livery"
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp", ".tif", ".tiff"}
 MODEL_EXTENSIONS = {".obj"}
 MAX_JSON_BODY = 64 * 1024 * 1024
-DEFAULT_BLENDER = Path(r"E:\SteamLibrary\steamapps\common\Blender\blender.exe")
+DEFAULT_BLENDER = Path(os.environ.get("WT_CAMO_BLENDER") or shutil.which("blender") or "blender")
 SURFACE_FACES = ("left", "right", "front", "rear", "top", "bottom")
 SURFACE_FACE_LABELS = {
     "left": "左面",

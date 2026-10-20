@@ -1,5 +1,5 @@
 param(
-    [string]$PainterPath = "E:\Program Files\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"
+    [string]$PainterPath = "C:\Program Files\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"
 )
 
 $ErrorActionPreference = "Stop"
