@@ -76,9 +76,19 @@ Blender 渲染默认 AUTO 优先 GPU，否则使用 CPU；可配置严格 GPU。
 
 仓库级 [wt-camo-workflow skill](.agents/skills/wt-camo-workflow/SKILL.md) 供 Codex 自动发现。外部工作区会同步这份项目 skill，不修改全局 skill。也可输入 `$wt-camo-workflow`。规范不内置历史主题、角色或配色。旧的可选 Blender/Painter skill 保留在 `skills/blender-vehicle-livery/`。
 
-CLI 使用自己的模型/MCP 配置，不自动获得另一聊天应用的 ImageGen、Blender MCP 或 Photoshop MCP。外部应用能力需在本机 CLI 环境配置。
+CLI 使用自己的模型/MCP 配置，不自动获得另一聊天应用的 ImageGen 或 Photoshop MCP。Blender MCP 可通过下方入口自动安装并接入。
 
 ## 可选 Painter 与 Blender MCP
+
+一并安装 Blender MCP 插件、注册本机 Codex CLI 并启动独立后台场景：
+
+```powershell
+.\start.cmd -WithBlenderMcp -BlenderPath "D:\Blender\blender.exe"
+# 可选模型：追加 -ModelPath "D:\Models\vehicle.obj"
+.\.venv\Scripts\python.exe scripts/doctor-workbench.py --blender-mcp
+```
+
+默认端口 18876，不操作现有 Blender 桌面。没有指定模型时从空场景开始。内置对话显示连接和工具发现状态；支持后台 bpy 操作与文件渲染，视口截图需要桌面环境。版本锁定、离线安装、停止与配置见 [Blender MCP 接入](docs/blender-mcp.zh-CN.md)。
 
 原生 Vehicle Livery Agent 和 Blender 脚本保留为独立入口：
 
@@ -88,7 +98,7 @@ powershell -File scripts/install-painter-livery-plugin.ps1
 powershell -File scripts/start-painter-livery.ps1 -PainterPath "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"
 ```
 
-参见 [Painter 工作流](skills/blender-vehicle-livery/references/painter-livery-studio.md)。Blender MCP 使用 `requirements-mcp.txt` 与 `scripts/start-blender-mcp.ps1`，不是主工作台启动依赖。
+参见 [Painter 工作流](skills/blender-vehicle-livery/references/painter-livery-studio.md)。Painter 不属于工作台或 Blender MCP 的必要依赖。
 
 ## 目录和验证
 

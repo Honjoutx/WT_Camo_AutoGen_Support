@@ -1,1 +1,2 @@
-blender-mcp==1.6.4
+blender-mcp==1.6.0
+mcp==1.30.0

@@ -12,6 +12,7 @@ Use the repository's background tools and the user's current project. Do not imp
 1. Read the workspace `projects/registry.json`, then only the selected project's config, brief, contract and layout. The workspace defaults to `data/workspace` and may be overridden by `WT_CAMO_WORKSPACE` or `config/runtime.local.json`. Resolve executable paths from `tools/livery-layout-editor/runtime.py`.
 2. Read `tools/livery-layout-editor/docs/workflow-guide.zh-CN.txt` once per session or when it changes. Use [project-contract.md](references/project-contract.md) when creating or registering a project. Use [execution.md](references/execution.md) for design and handoff decisions.
 3. Report actual capabilities. A local Codex CLI does not inherit ImageGen, Blender MCP or Photoshop MCP from a separate chat application. Use configured CLI MCP servers when present; otherwise continue file, vector, layout and background Blender work. Do not fabricate generated assets.
+4. For this repository's managed Blender connection, read `docs/blender-mcp.zh-CN.md` in the tool repository (`runtime.APP`) when needed. `start.cmd -WithBlenderMcp` installs the pinned addon/server and starts a separate headless session; `scripts/doctor-workbench.py --blender-mcp` checks both the host and Codex tool discovery. Use `wt_camo_blender` tools for that session, not another open Blender. Render previews to files: headless mode has no viewport screenshot. No model is loaded unless supplied; save intended scene changes before explicitly stopping or replacing the session.
 
 ## Ordered workflow
 

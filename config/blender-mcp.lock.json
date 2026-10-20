@@ -1,0 +1,8 @@
+{
+  "package": "blender-mcp==1.6.0",
+  "commit": "e3ece087adecce4242d4dc3e4db28c33010b51c4",
+  "addon_url": "https://raw.githubusercontent.com/ahujasid/mcp-for-blender/e3ece087adecce4242d4dc3e4db28c33010b51c4/addon.py",
+  "addon_sha256": "ca6955bb584d78e229f020a8b9d7011440adc6e94dab0ac8e01ab2794db19dc0",
+  "source": "https://github.com/ahujasid/mcp-for-blender",
+  "license": "MIT"
+}

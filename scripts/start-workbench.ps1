@@ -1,4 +1,4 @@
-param([int]$Port=18188,[string]$PythonPath,[switch]$NoBrowser)
+param([int]$Port=18188,[string]$PythonPath,[switch]$NoBrowser,[switch]$WithBlenderMcp,[string]$BlenderPath,[string]$ModelPath)
 $ErrorActionPreference = 'Stop'
 $env:PYTHONUTF8 = '1'
 $env:PYTHONIOENCODING = 'utf-8'
@@ -10,6 +10,10 @@ if (-not (Test-Path -LiteralPath $VenvPython) -or -not (Test-Path -LiteralPath $
     & (Join-Path $PSScriptRoot 'setup-workbench.ps1') -PythonPath $PythonPath
 }
 $Server = Join-Path $Repo 'tools\livery-layout-editor\server.py'
+if ($WithBlenderMcp) {
+    & (Join-Path $PSScriptRoot 'setup-blender-mcp.ps1')
+    & (Join-Path $PSScriptRoot 'start-blender-mcp.ps1') -BlenderPath $BlenderPath -ModelPath $ModelPath
+}
 $Url = "http://127.0.0.1:$Port"
 try {
     $Health = Invoke-RestMethod "$Url/api/studio/health" -TimeoutSec 2

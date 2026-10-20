@@ -22,6 +22,18 @@ def main():
     'models':[m.get('id') for m in bridge.rpc('model/list',{'limit':100}).get('data',[])]}
   except Exception as e:result['cli_connection']={'error':str(e)};failed=True
   finally:bridge.close()
+ if '--blender-mcp' in sys.argv:
+  from blender_connection import status,codex_status
+  from codex_bridge import CodexProcess
+  result['blender_mcp']=status()
+  if not result['blender_mcp']['connected']:failed=True
+  if result['blender_mcp']['installed']:
+   bridge=CodexProcess(lambda *args:None)
+   try:
+    bridge.ensure();result['blender_mcp']['codex']=codex_status(bridge)
+    if not result['blender_mcp']['codex']['ready']:failed=True
+   except Exception as e:result['blender_mcp']['codex']={'error':str(e),'ready':False};failed=True
+   finally:bridge.close()
  print(json.dumps(result,ensure_ascii=False,indent=2))
  return int(failed)
 

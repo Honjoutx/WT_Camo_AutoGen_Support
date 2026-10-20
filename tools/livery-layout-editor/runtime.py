@@ -32,7 +32,7 @@ def codex_executable():
  raise FileNotFoundError('未找到 Codex CLI。请先安装并登录，或设置 WT_CAMO_CODEX。')
 
 def blender_executable():
- value=configured('blender','WT_CAMO_BLENDER') or shutil.which('blender')
+ value=configured('blender','WT_CAMO_BLENDER') or os.environ.get('BLENDER_PATH') or shutil.which('blender')
  if value and Path(value).is_file():return str(Path(value).resolve())
  if os.name=='nt':
   bases=[Path(os.environ.get('ProgramFiles','C:/Program Files'))/'Blender Foundation']

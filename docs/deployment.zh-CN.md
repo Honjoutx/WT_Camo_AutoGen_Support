@@ -42,7 +42,7 @@ compact 使用内容摘要复用不可变文件，参数存档不携带整套模
 
 通过 `WT_CAMO_BLENDER` 或 local config 配置 Blender。AUTO 尝试 GPU，失败后记录实际 CPU；`device=GPU`、`silent_cpu_fallback=false` 可要求严格 GPU。backend 默认 AUTO，也可按本机 Blender 支持指定。程序不保存全局 Blender 偏好。
 
-Photoshop、Painter、图像生成与 Blender MCP 均为可选。优先后台文件/CLI；不默认操控桌面。Painter 原生面板仍使用独立 Agent bridge。
+Photoshop、Painter、图像生成与 Blender MCP 均为可选。优先后台文件/CLI；不默认操控桌面。Painter 原生面板仍使用独立 Agent bridge。Blender MCP 可用 `start.cmd -WithBlenderMcp` 自动安装、注册并启动，详见 [接入说明](blender-mcp.zh-CN.md)。其全局注册只管理独立命名条目，基础部署不修改 CLI 配置。
 
 ## 更新和排错
 

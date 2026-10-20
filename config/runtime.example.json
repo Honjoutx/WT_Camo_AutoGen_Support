@@ -2,6 +2,12 @@
   "workspace": "data/workspace",
   "codex": null,
   "blender": null,
+  "blender_mcp": {
+    "enabled": true,
+    "host": "127.0.0.1",
+    "port": 18876,
+    "server_name": "wt_camo_blender"
+  },
   "fonts": [],
   "render": {
     "device": "AUTO",

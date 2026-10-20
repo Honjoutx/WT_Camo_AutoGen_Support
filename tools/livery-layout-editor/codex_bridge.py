@@ -12,7 +12,7 @@ def executable():
 
 class CodexProcess:
  def __init__(self,callback):
-  self.callback=callback;self.process=None;self.pending={};self.next_id=0;self.write_lock=threading.Lock();self.start_lock=threading.RLock();self.generation=0;self.errors=[]
+  self.callback=callback;self.process=None;self.pending={};self.next_id=0;self.write_lock=threading.Lock();self.start_lock=threading.RLock();self.generation=0;self.errors=[];self.mcp_args=[]
  def send(self,data):
   with self.write_lock:
    if not self.process or self.process.poll() is not None:raise RuntimeError('Codex 后台进程未运行。')
@@ -31,7 +31,9 @@ class CodexProcess:
   with self.start_lock:
    if self.process and self.process.poll() is None:return
    binary=executable();self.generation+=1;generation=self.generation
-   self.process=subprocess.Popen([binary,'app-server','--listen','stdio://'],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',bufsize=1,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
+   from blender_connection import app_server_args
+   self.mcp_args=app_server_args()
+   self.process=subprocess.Popen([binary,'app-server','--listen','stdio://',*self.mcp_args],cwd=ROOT,stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,encoding='utf-8',errors='replace',bufsize=1,creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
    proc=self.process
    def stdout():
     try:
@@ -89,13 +91,21 @@ class ChatService:
   return sorted(out,key=lambda s:s['updated'],reverse=True)
  def status(self,connect=False):
   result={'available':False,'connected':bool(self.process.process and self.process.process.poll() is None),'transport':'codex app-server / stdio','models':[]}
+  from blender_connection import status as blender_status,codex_status
+  result['blender_mcp']=blender_status()
   try:
    result['executable']=executable();result['available']=True
    if connect:
+    from blender_connection import app_server_args
+    with self.lock:
+     if not any(s.get('busy') for s in self.sessions.values()) and self.process.mcp_args!=app_server_args():self.process.close()
     self.process.ensure();result['connected']=True
     account=self.process.rpc('account/read',{'refreshToken':False})
     a=account.get('account');result['signed_in']=bool(a);result['auth_type']=a.get('type') if a else None;result['requires_auth']=account.get('requiresOpenaiAuth',True)
     result['models']=self.process.rpc('model/list',{'limit':100}).get('data',[])
+    if result['blender_mcp']['installed']:
+     try:result['blender_mcp']['codex']=codex_status(self.process)
+     except (RuntimeError,OSError,TimeoutError) as e:result['blender_mcp']['codex']={'ready':False,'error':str(e)}
   except (RuntimeError,OSError,TimeoutError) as e:result['error']=str(e)
   return result
  def create(self,pid,title='新对话'):
