@@ -8,6 +8,8 @@
 
 ## Windows 桌面应用
 
+[下载最新版 Windows 应用与 SHA-256 校验文件](https://github.com/Honjoutx/WT_Camo_Auto_Gen/releases/latest)。请选择 Release 附件中的 `WT-Camo-Workbench-Windows-x64.zip`；GitHub 自动提供的 Source code 是源码包。
+
 解压 `WT-Camo-Workbench-Windows-x64.zip`，运行 **WT Camo Workbench.exe**。内置 Python 和工作台依赖，独立窗口运行；Codex CLI、Blender 使用本机安装。顶部可切换简体中文与 English，语言选择会保留，不翻译设计稿、素材名或聊天原文。
 
 用户工程与配置保存在 `%LOCALAPPDATA%/WT Camo Workbench/`，与应用资源分开。完整使用说明、构建和验证命令见 [桌面应用](docs/desktop.zh-CN.md)。

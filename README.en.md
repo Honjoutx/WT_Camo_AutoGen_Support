@@ -8,6 +8,8 @@ The repository contains code and reusable workflow instructions. Models, charact
 
 ## Windows desktop app
 
+[Download the latest Windows app and SHA-256 checksum](https://github.com/Honjoutx/WT_Camo_Auto_Gen/releases/latest). Choose the `WT-Camo-Workbench-Windows-x64.zip` release asset; GitHub's automatically generated Source code archives do not contain the application.
+
 Extract `WT-Camo-Workbench-Windows-x64.zip` and run **WT Camo Workbench.exe**. Keep the adjacent `_internal` folder. Python and the workbench dependencies are included.
 
 Requires Windows 10/11 x64 and [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Local Codex CLI and Blender are optional external programs; use Application settings to specify their paths. Codex reuses its existing sign-in.
